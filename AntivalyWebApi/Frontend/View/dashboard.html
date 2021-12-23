@@ -1,0 +1,103 @@
+<div ng-controller="DashboardController">
+    
+    <div ng-show="adminView()" class="admin">
+
+        <center>
+            <h1 style="font-family: Cambria;">Admin Panel</h1>
+            <br>
+            <a href="#!/controlpanel">Control Panel</a>
+            <a href="#!/offercoupon">Offer Coupon</a>
+            <a href="#!/checkdemographics">Check Demographics</a>
+            <br><br>
+            <div style="width: auto; margin-top: 10px; padding-top: 5px; padding-bottom: 5px; background-color: #30399f; border-radius: 5px;">
+                <span style="font-family: Cambria; color:aliceblue;font-size: 15px"><b>Active Delivery Men</b></span>
+            </div>
+            <div ng-controller="DeliveryDetails" style="overflow: auto; height: 115px;">
+                <table class="tableDetails" style="font-family:Cambria">
+
+                    <tr style="width: 100%; position: sticky; top: 0px;">
+                        <th>ID</th>
+                        <th>Status</th>
+                        <th>Orders Completed</th>
+                        <th>Paycheck</th>
+                        <th>Delivery Charge</th>
+                    </tr>
+
+                    <tr ng-repeat="deliveryman in deliverymen">
+                        <td>{{deliveryman.UID}}</td>
+                            <td style="background-color: lawngreen" ng-show="deliveryman.Status == 'Free'"><b>{{deliveryman.Status}}</b></td>
+                            <td style="background-color: rgb(207, 21, 21)" ng-show="deliveryman.Status == 'Blocked'"><b>{{deliveryman.Status}}</b></td>
+                            <td style="background-color: rgb(212, 128, 17)" ng-show="deliveryman.Status == 'Busy'"><b>{{deliveryman.Status}}</b></td>
+                        <td>{{deliveryman.NumOfOrders}}</td>
+                        <td>{{deliveryman.Balance}}</td>
+                        <td>{{deliveryman.DeliveryCharge}}</td>
+                    </tr>
+                
+                
+                </table>
+            </div>
+            
+            
+            
+            <div style="width: auto; margin-top: 2px; padding-top: 5px; padding-bottom: 5px; background-color: mediumspringgreen; border-radius: 5px;">
+                <span style="font-family: Cambria; color:rgb(0, 0, 0);font-size: 15px"><b>Available Products</b></span>
+            </div>
+            <div ng-controller="ProductDetails" style="overflow: auto; height: 260px;">
+            <table class="tableDetails" style="font-family:Cambria">
+
+                <tr style="width: 100%; position: sticky; top: 0px;">
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Description</th>
+                    <!-- <th>Action</th> -->
+                </tr>
+                <tr ng-repeat="product in products">
+                    <td>{{product.PName}}</td>
+                    <td>{{product.CatName}}</td>
+                    <td>{{product.Qty}}</td>
+                    <td>{{product.Price}}</td>
+                    <td>{{product.Descr}}</td>
+    
+                    <!-- <td>
+                        <div class="form-group" hidden="hidden">
+                            <input autocomplete="off" class="form-control valid" data-val="true" value="@items.PID" id="@items.PID" name="" type="text" />
+                        </div>
+    
+                        <input type="submit" class="btn btn-block btn-danger" name="@items.PID" value="Remove" onmouseover="assignPID(this)" onmouseout="removePID(this)">
+                    </td> -->
+                </tr>
+            
+            
+            </table>
+        </div>
+
+        </center>
+
+    </div>
+
+    <div ng-show="buyerView()">
+
+
+
+    </div>
+
+    <div ng-show="sellerView()">
+
+        <center>
+            <h1 style="font-family: Cambria;">Seller Panel</h1>
+        </center>
+
+    </div>
+
+
+    <div ng-show="deliverymanView()">
+
+        <center>
+            <h1 style="font-family: Cambria;">Delivery Man Panel</h1>
+        </center>
+
+    </div>
+
+</div>

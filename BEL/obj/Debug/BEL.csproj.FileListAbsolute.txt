@@ -1,0 +1,12 @@
+C:\Users\ASUS\source\repos\AntivalyWebApi\BEL\bin\Debug\BEL.dll
+C:\Users\ASUS\source\repos\AntivalyWebApi\BEL\bin\Debug\BEL.pdb
+C:\Users\ASUS\source\repos\AntivalyWebApi\BEL\obj\Debug\BEL.csproj.AssemblyReference.cache
+C:\Users\ASUS\source\repos\AntivalyWebApi\BEL\obj\Debug\BEL.csproj.CoreCompileInputs.cache
+C:\Users\ASUS\source\repos\AntivalyWebApi\BEL\obj\Debug\BEL.dll
+C:\Users\ASUS\source\repos\AntivalyWebApi\BEL\obj\Debug\BEL.pdb
+C:\Users\User\source\repos\AntivalyWebApi\AntivalyWebApi\BEL\bin\Debug\BEL.dll
+C:\Users\User\source\repos\AntivalyWebApi\AntivalyWebApi\BEL\bin\Debug\BEL.pdb
+C:\Users\User\source\repos\AntivalyWebApi\AntivalyWebApi\BEL\obj\Debug\BEL.csprojAssemblyReference.cache
+C:\Users\User\source\repos\AntivalyWebApi\AntivalyWebApi\BEL\obj\Debug\BEL.csproj.CoreCompileInputs.cache
+C:\Users\User\source\repos\AntivalyWebApi\AntivalyWebApi\BEL\obj\Debug\BEL.dll
+C:\Users\User\source\repos\AntivalyWebApi\AntivalyWebApi\BEL\obj\Debug\BEL.pdb

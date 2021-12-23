@@ -1,0 +1,37 @@
+<div ng-controller="controlpanel">
+    <center>
+        <h1 style="font-family: Cambria;">Control Panel</h1>
+
+        <span style="font-weight: bold; font-family: Cambria;">Search <input type="text" ng-model="list" placeholder="Search Name"></span>
+        
+            <table class="tableDetails" style="font-family:Cambria">
+
+                <tr>
+                    <th ng-click="OrderBy('UID')">User ID</th>
+                    <th ng-click="OrderBy('Name')">Name</th>
+                    <th ng-click="OrderBy('Email')">Email</th>
+                    <th ng-click="OrderBy('Contact')">Contact</th>
+                    <th ng-click="OrderBy('AccType')">User</th>
+                    <th ng-click="OrderBy('AccStatus')">Status</th>
+                    <th>Action</th>
+                </tr>
+                
+                    <tr ng-repeat="user in users |  orderBy:Order | filter:{Name:list}">
+                        <td>{{user.UID}}</td>
+                        <td>{{user.Name}}</td>
+                        <td>{{user.Email}}</td>
+                        <td>{{user.Contact}}</td>
+                        <td>{{user.AccType}}</td>
+                        <td>{{user.AccStatus}}</td>
+                        <td ng-show="user.AccStatus == 'Pending'" ><span class="verifyB" ng-click="Verify(user.UID)">Verify</span></td>
+                        <td ng-show="user.AccStatus == 'Active' && user.AccType != 'Admin'" ><span class="blockB" ng-click="Block(user.UID)">Block</span></td>
+                        <td ng-show="user.AccStatus == 'Blocked'" ><span  class="unblockB" ng-click="Unblock(user.UID)">Unblock</span></td>
+                        
+                    </tr>
+            
+            </table>
+
+
+
+    </center>
+</div>

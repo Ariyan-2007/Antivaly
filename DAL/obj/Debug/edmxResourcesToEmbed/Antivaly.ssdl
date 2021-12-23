@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="AntivalyModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="Buyers">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="BuyerId" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="RewardPoint" Type="float" Nullable="false" />
+    <Property Name="Rank" Type="varchar" MaxLength="50" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Categories">
+    <Key>
+      <PropertyRef Name="CatName" />
+    </Key>
+    <Property Name="CatID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="CatName" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="Items" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="CouponCheck">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="CouponId" Type="int" Nullable="false" />
+    <Property Name="BuyerId" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="UsedAt" Type="datetime" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Coupons">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Code" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="Discount" Type="float" Nullable="false" />
+    <Property Name="NumOfUse" Type="int" Nullable="false" />
+    <Property Name="Category" Type="varchar(max)" Nullable="false" />
+    <Property Name="MinOrder" Type="float" />
+    <Property Name="CreatedAt" Type="datetime" Nullable="false" />
+    <Property Name="ExpiredAt" Type="datetime" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Deliveries">
+    <Key>
+      <PropertyRef Name="UID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="UID" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="Status" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="NumOfOrders" Type="int" Nullable="false" />
+    <Property Name="DeliveryCharge" Type="float" Nullable="false" />
+    <Property Name="LevelCode" Type="int" Nullable="false" />
+    <Property Name="Balance" Type="float" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Products">
+    <Key>
+      <PropertyRef Name="PID" />
+    </Key>
+    <Property Name="PID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="UID" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="CatName" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="PName" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="Qty" Type="int" Nullable="false" />
+    <Property Name="Price" Type="float" Nullable="false" />
+    <Property Name="Descr" Type="varchar" MaxLength="500" />
+    <Property Name="PStatus" Type="varchar" MaxLength="50" />
+    <Property Name="Discount" Type="float" />
+    <Property Name="DiscountExp" Type="datetime" />
+  </EntityType>
+  <EntityType Name="Tokens">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="UserID" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="AccStatus" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="AccessToken" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="CreatedAt" Type="datetime" Nullable="false" />
+    <Property Name="ExpiredAt" Type="datetime" />
+  </EntityType>
+  <EntityType Name="Transactions">
+    <Key>
+      <PropertyRef Name="TID" />
+    </Key>
+    <Property Name="TID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="UID" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="TDetials" Type="varchar(max)" Nullable="false" />
+    <Property Name="TAmount" Type="float" Nullable="false" />
+    <Property Name="DMID" Type="varchar" MaxLength="50" />
+    <Property Name="Status" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="TDate" Type="varchar" MaxLength="50" Nullable="false" />
+  </EntityType>
+  <EntityType Name="UserIDs">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" Nullable="false" />
+    <Property Name="AccType" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="LastID" Type="int" />
+  </EntityType>
+  <EntityType Name="Users">
+    <Key>
+      <PropertyRef Name="UID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="UID" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="Password" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="Name" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="Email" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="Address" Type="varchar(max)" Nullable="false" />
+    <Property Name="Contact" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="AccType" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="AccStatus" Type="varchar" MaxLength="50" Nullable="false" />
+  </EntityType>
+  <Association Name="FK_Buyers_Users">
+    <End Role="Users" Type="Self.Users" Multiplicity="1" />
+    <End Role="Buyers" Type="Self.Buyers" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Users">
+        <PropertyRef Name="UID" />
+      </Principal>
+      <Dependent Role="Buyers">
+        <PropertyRef Name="BuyerId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Deliveries_Users">
+    <End Role="Users" Type="Self.Users" Multiplicity="1" />
+    <End Role="Deliveries" Type="Self.Deliveries" Multiplicity="0..1" />
+    <ReferentialConstraint>
+      <Principal Role="Users">
+        <PropertyRef Name="UID" />
+      </Principal>
+      <Dependent Role="Deliveries">
+        <PropertyRef Name="UID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Products_Categories">
+    <End Role="Categories" Type="Self.Categories" Multiplicity="1" />
+    <End Role="Products" Type="Self.Products" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Categories">
+        <PropertyRef Name="CatName" />
+      </Principal>
+      <Dependent Role="Products">
+        <PropertyRef Name="CatName" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Products_Users">
+    <End Role="Users" Type="Self.Users" Multiplicity="1" />
+    <End Role="Products" Type="Self.Products" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Users">
+        <PropertyRef Name="UID" />
+      </Principal>
+      <Dependent Role="Products">
+        <PropertyRef Name="UID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Tokens_Users">
+    <End Role="Users" Type="Self.Users" Multiplicity="1" />
+    <End Role="Tokens" Type="Self.Tokens" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Users">
+        <PropertyRef Name="UID" />
+      </Principal>
+      <Dependent Role="Tokens">
+        <PropertyRef Name="UserID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Transactions_Users">
+    <End Role="Users" Type="Self.Users" Multiplicity="1" />
+    <End Role="Transactions" Type="Self.Transactions" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Users">
+        <PropertyRef Name="UID" />
+      </Principal>
+      <Dependent Role="Transactions">
+        <PropertyRef Name="UID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="AntivalyModelStoreContainer">
+    <EntitySet Name="Buyers" EntityType="Self.Buyers" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Categories" EntityType="Self.Categories" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="CouponCheck" EntityType="Self.CouponCheck" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Coupons" EntityType="Self.Coupons" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Deliveries" EntityType="Self.Deliveries" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Products" EntityType="Self.Products" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Tokens" EntityType="Self.Tokens" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Transactions" EntityType="Self.Transactions" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="UserIDs" EntityType="Self.UserIDs" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+    <AssociationSet Name="FK_Buyers_Users" Association="Self.FK_Buyers_Users">
+      <End Role="Users" EntitySet="Users" />
+      <End Role="Buyers" EntitySet="Buyers" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Deliveries_Users" Association="Self.FK_Deliveries_Users">
+      <End Role="Users" EntitySet="Users" />
+      <End Role="Deliveries" EntitySet="Deliveries" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Products_Categories" Association="Self.FK_Products_Categories">
+      <End Role="Categories" EntitySet="Categories" />
+      <End Role="Products" EntitySet="Products" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Products_Users" Association="Self.FK_Products_Users">
+      <End Role="Users" EntitySet="Users" />
+      <End Role="Products" EntitySet="Products" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Tokens_Users" Association="Self.FK_Tokens_Users">
+      <End Role="Users" EntitySet="Users" />
+      <End Role="Tokens" EntitySet="Tokens" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Transactions_Users" Association="Self.FK_Transactions_Users">
+      <End Role="Users" EntitySet="Users" />
+      <End Role="Transactions" EntitySet="Transactions" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

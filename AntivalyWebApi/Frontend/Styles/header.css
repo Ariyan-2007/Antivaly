@@ -1,0 +1,45 @@
+*{ margin: 0px 0px;}
+body {
+  background-color: rgb(252, 245, 245);
+}
+.header {
+    overflow: hidden;
+    background-color: rgb(26, 25, 25);
+    
+  }
+  
+  .header label {
+      font-family: fantasy;
+      float:left;
+      color: #f2f2f2;
+      text-align: center;
+      padding: 7px 16px;
+      text-decoration: none;
+      font-size: 30px;
+  }
+  .header a {
+    font-family: 'Bebas Neue';
+    float: right;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+  }
+  
+  .header a:hover {
+    background-color: rgba(214, 200, 200, 0.856);
+    color: black;
+  }
+  
+  .header a.active {
+    background-color: #bb0b0b;
+    color: white;
+  }
+
+  .header a.active2 {
+    background-color: #630707;
+    color: white;
+  }
+
+  
