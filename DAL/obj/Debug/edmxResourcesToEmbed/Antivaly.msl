@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="AntivalyModelStoreContainer" CdmEntityContainer="AntivalyEntities">
+    <EntitySetMapping Name="Buyers">
+      <EntityTypeMapping TypeName="AntivalyModel.Buyer">
+        <MappingFragment StoreEntitySet="Buyers">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="BuyerId" ColumnName="BuyerId" />
+          <ScalarProperty Name="RewardPoint" ColumnName="RewardPoint" />
+          <ScalarProperty Name="Rank" ColumnName="Rank" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Categories">
+      <EntityTypeMapping TypeName="AntivalyModel.Category">
+        <MappingFragment StoreEntitySet="Categories">
+          <ScalarProperty Name="CatID" ColumnName="CatID" />
+          <ScalarProperty Name="CatName" ColumnName="CatName" />
+          <ScalarProperty Name="Items" ColumnName="Items" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="CouponChecks">
+      <EntityTypeMapping TypeName="AntivalyModel.CouponCheck">
+        <MappingFragment StoreEntitySet="CouponCheck">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="CouponId" ColumnName="CouponId" />
+          <ScalarProperty Name="BuyerId" ColumnName="BuyerId" />
+          <ScalarProperty Name="UsedAt" ColumnName="UsedAt" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Coupons">
+      <EntityTypeMapping TypeName="AntivalyModel.Coupon">
+        <MappingFragment StoreEntitySet="Coupons">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Code" ColumnName="Code" />
+          <ScalarProperty Name="Discount" ColumnName="Discount" />
+          <ScalarProperty Name="NumOfUse" ColumnName="NumOfUse" />
+          <ScalarProperty Name="Category" ColumnName="Category" />
+          <ScalarProperty Name="MinOrder" ColumnName="MinOrder" />
+          <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+          <ScalarProperty Name="ExpiredAt" ColumnName="ExpiredAt" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Deliveries">
+      <EntityTypeMapping TypeName="AntivalyModel.Delivery">
+        <MappingFragment StoreEntitySet="Deliveries">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="UID" ColumnName="UID" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="NumOfOrders" ColumnName="NumOfOrders" />
+          <ScalarProperty Name="DeliveryCharge" ColumnName="DeliveryCharge" />
+          <ScalarProperty Name="LevelCode" ColumnName="LevelCode" />
+          <ScalarProperty Name="Balance" ColumnName="Balance" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Products">
+      <EntityTypeMapping TypeName="AntivalyModel.Product">
+        <MappingFragment StoreEntitySet="Products">
+          <ScalarProperty Name="PID" ColumnName="PID" />
+          <ScalarProperty Name="UID" ColumnName="UID" />
+          <ScalarProperty Name="CatName" ColumnName="CatName" />
+          <ScalarProperty Name="PName" ColumnName="PName" />
+          <ScalarProperty Name="Qty" ColumnName="Qty" />
+          <ScalarProperty Name="Price" ColumnName="Price" />
+          <ScalarProperty Name="Descr" ColumnName="Descr" />
+          <ScalarProperty Name="PStatus" ColumnName="PStatus" />
+          <ScalarProperty Name="Discount" ColumnName="Discount" />
+          <ScalarProperty Name="DiscountExp" ColumnName="DiscountExp" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Tokens">
+      <EntityTypeMapping TypeName="AntivalyModel.Token">
+        <MappingFragment StoreEntitySet="Tokens">
+          <ScalarProperty Name="AccStatus" ColumnName="AccStatus" />
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="UserID" ColumnName="UserID" />
+          <ScalarProperty Name="AccessToken" ColumnName="AccessToken" />
+          <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+          <ScalarProperty Name="ExpiredAt" ColumnName="ExpiredAt" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Transactions">
+      <EntityTypeMapping TypeName="AntivalyModel.Transaction">
+        <MappingFragment StoreEntitySet="Transactions">
+          <ScalarProperty Name="TID" ColumnName="TID" />
+          <ScalarProperty Name="UID" ColumnName="UID" />
+          <ScalarProperty Name="TDetials" ColumnName="TDetials" />
+          <ScalarProperty Name="TAmount" ColumnName="TAmount" />
+          <ScalarProperty Name="DMID" ColumnName="DMID" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="TDate" ColumnName="TDate" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="UserIDs">
+      <EntityTypeMapping TypeName="AntivalyModel.UserID">
+        <MappingFragment StoreEntitySet="UserIDs">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="AccType" ColumnName="AccType" />
+          <ScalarProperty Name="LastID" ColumnName="LastID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Users">
+      <EntityTypeMapping TypeName="AntivalyModel.User">
+        <MappingFragment StoreEntitySet="Users">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="UID" ColumnName="UID" />
+          <ScalarProperty Name="Password" ColumnName="Password" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="Email" ColumnName="Email" />
+          <ScalarProperty Name="Address" ColumnName="Address" />
+          <ScalarProperty Name="Contact" ColumnName="Contact" />
+          <ScalarProperty Name="AccType" ColumnName="AccType" />
+          <ScalarProperty Name="AccStatus" ColumnName="AccStatus" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>

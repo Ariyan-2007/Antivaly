@@ -1,0 +1,62 @@
+<div>
+    <center><h1 style="font-family: 'Gabriola Regular';">Registration</h1></center>
+    <hr style="border-top: 2px solid rgb(223, 64, 53); width:10%; margin: 0 auto;">
+    <br>
+</div>
+
+    <div class="reg" ng-controller="registration">
+        <form ng-submit="register(Info, name, password, email, address, Contact, Type)" name="regForm" class="regForm"  novalidate> 
+            <div>
+            <label for="accType">Choose an Account Type &nbsp; </label>
+                <select ng-options="option for option in AccTypes"
+                        ng-model="Type"
+                        ng-change="TypeChanged()"
+                ></select>
+            <br>                
+                <label><input value="{{Info}}" id="UID" name="UID" placeholder="UID"  type="text" readonly required style="background-color: rgb(226, 219, 219); "/> 
+                <span style="color: green; font-weight: bold;">&larr;</span> Use this ID to login</label> 
+                </div>  
+                <input value="" id="name" name="name" placeholder="Name" type="text" ng-model="name" required ng-maxlength="50">
+                <span style="color:red" ng-show="regForm.name.$dirty && regForm.name.$invalid">
+                    <span ng-show="regForm.name.$error.required">Name is Required</span>
+                    <span style="color:red" ng-show="regForm.name.$error.maxlength && regForm.name.$dirty">Name should not be so long</span>
+                </span>
+                <span style="color:green; font-weight: bold; margin-left: 5px;" ng-show="regForm.name.$dirty && regForm.name.$valid">&check;</span>
+            <br>
+                <input value="" id="email" name="email" placeholder="Email" type="email" ng-model="email" required>
+                <span style="color:red" ng-show="regForm.email.$dirty && regForm.email.$invalid">
+                    <span ng-show="regForm.email.$error.required">Email Address is Required</span>
+                    <span ng-show="regForm.email.$error.email">Email Address is Invalid</span>
+                </span>
+                <span style="color:green; font-weight: bold; margin-left: 5px;" ng-show="regForm.email.$dirty && regForm.email.$valid">&check;</span>
+            <br>
+                <input value="" id="Contact" name="Contact" placeholder="Contact" type="text" 
+                    ng-pattern="/^(?=.*\d)[\d]{11,11}$/"
+                    ng-model="Contact"
+                    required>
+                <span style="color:red" ng-show="((regForm.Contact.$error.required || regForm.Contact.$error.number) && regForm.Contact.$dirty)"> Valid phone number is required </span>
+                <span style="color:red" ng-show="(regForm.Contact.$invalid && regForm.Contact.$dirty && !regForm.Contact.$error.required)">Phone Number should be 11 digits</span>
+                <span style="color:green; font-weight: bold; margin-left: 5px;" ng-show="regForm.Contact.$dirty && regForm.Contact.$valid">&check;</span>    
+            <br>
+            <textarea value="" id="address" name="address" placeholder="Address" rows="2" style="vertical-align: middle;" required ng-minlength="5" ng-model="address"></textarea>
+            <span style="color:red" style="vertical-align: middle;" ng-show="regForm.address.$error.required && regForm.address.$dirty">Address is Required</span>
+            <span style="color:red" style="vertical-align: middle;" ng-show="regForm.address.$error.minlength && regForm.address.$dirty">Address is Too Short</span>
+            <span style="color:green; font-weight: bold; margin-left: 5px; vertical-align: middle;" ng-show="regForm.address.$dirty && regForm.address.$valid">&check;</span>
+            <br>
+                <input autocomplete="off" value="" id="password" name="password" placeholder="Password" type="password" required
+                ng-model="password"
+                ng-pattern="/^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,20}$/">
+                <span style="color:red" ng-show="regForm.password.$error.required && regForm.password.$dirty">Password is Required</span>
+                <span style="color:red" ng-show="regForm.password.$invalid && !regForm.password.$error.required && regForm.password.$dirty">Password Short/Long/Requires Number</span>
+                <span style="color:green; font-weight: bold; margin-left: 5px;" ng-show="regForm.password.$dirty && regForm.password.$valid">&check;</span>
+            <br>
+                <input autocomplete="off" value="" id="confirmPassword" name="confirmPassword" placeholder="Re-Type Password" type="password" required
+                ng-model="confirmPassword"
+                ng-pattern="/^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,20}$/">
+                <span style="color:red" ng-show="regForm.confirmPassword.$error.required && regForm.confirmPassword.$dirty">Please Re-type Password</span>
+                <span style="color:red" ng-show="password !== confirmPassword && !regForm.confirmPassword.$error.required && regForm.confirmPassword.$dirty">Password Doesn't Match</span>
+                <span style="color:green; font-weight: bold; margin-left: 5px;" ng-show="password === confirmPassword && regForm.confirmPassword.$valid">&check;</span>
+            <br><br>
+            <input type="submit" value="Register" ng-disabled="regForm.Info.$invalid || regForm.name.$invalid || regForm.email.$invalid || regForm.Contact.$invalid || regForm.address.$invalid || (password !==confirmPassword && regForm.confirmPassword.$invalid)">
+        </form>
+    </div>

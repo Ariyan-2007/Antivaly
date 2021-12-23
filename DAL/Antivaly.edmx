@@ -1,0 +1,630 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="AntivalyModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Buyers">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="BuyerId" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="RewardPoint" Type="float" Nullable="false" />
+          <Property Name="Rank" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Categories">
+          <Key>
+            <PropertyRef Name="CatName" />
+          </Key>
+          <Property Name="CatID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CatName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Items" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CouponCheck">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CouponId" Type="int" Nullable="false" />
+          <Property Name="BuyerId" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="UsedAt" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Coupons">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Code" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Discount" Type="float" Nullable="false" />
+          <Property Name="NumOfUse" Type="int" Nullable="false" />
+          <Property Name="Category" Type="varchar(max)" Nullable="false" />
+          <Property Name="MinOrder" Type="float" />
+          <Property Name="CreatedAt" Type="datetime" Nullable="false" />
+          <Property Name="ExpiredAt" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Deliveries">
+          <Key>
+            <PropertyRef Name="UID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UID" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Status" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="NumOfOrders" Type="int" Nullable="false" />
+          <Property Name="DeliveryCharge" Type="float" Nullable="false" />
+          <Property Name="LevelCode" Type="int" Nullable="false" />
+          <Property Name="Balance" Type="float" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Products">
+          <Key>
+            <PropertyRef Name="PID" />
+          </Key>
+          <Property Name="PID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UID" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="CatName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="PName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Qty" Type="int" Nullable="false" />
+          <Property Name="Price" Type="float" Nullable="false" />
+          <Property Name="Descr" Type="varchar" MaxLength="500" />
+          <Property Name="PStatus" Type="varchar" MaxLength="50" />
+          <Property Name="Discount" Type="float" />
+          <Property Name="DiscountExp" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Tokens">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserID" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="AccStatus" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="AccessToken" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="CreatedAt" Type="datetime" Nullable="false" />
+          <Property Name="ExpiredAt" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Transactions">
+          <Key>
+            <PropertyRef Name="TID" />
+          </Key>
+          <Property Name="TID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UID" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="TDetials" Type="varchar(max)" Nullable="false" />
+          <Property Name="TAmount" Type="float" Nullable="false" />
+          <Property Name="DMID" Type="varchar" MaxLength="50" />
+          <Property Name="Status" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="TDate" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="UserIDs">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" />
+          <Property Name="AccType" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="LastID" Type="int" />
+        </EntityType>
+        <EntityType Name="Users">
+          <Key>
+            <PropertyRef Name="UID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UID" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Password" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Email" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Address" Type="varchar(max)" Nullable="false" />
+          <Property Name="Contact" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="AccType" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="AccStatus" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_Buyers_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="Buyers" Type="Self.Buyers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UID" />
+            </Principal>
+            <Dependent Role="Buyers">
+              <PropertyRef Name="BuyerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Deliveries_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="Deliveries" Type="Self.Deliveries" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UID" />
+            </Principal>
+            <Dependent Role="Deliveries">
+              <PropertyRef Name="UID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Products_Categories">
+          <End Role="Categories" Type="Self.Categories" Multiplicity="1" />
+          <End Role="Products" Type="Self.Products" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Categories">
+              <PropertyRef Name="CatName" />
+            </Principal>
+            <Dependent Role="Products">
+              <PropertyRef Name="CatName" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Products_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="Products" Type="Self.Products" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UID" />
+            </Principal>
+            <Dependent Role="Products">
+              <PropertyRef Name="UID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Tokens_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="Tokens" Type="Self.Tokens" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UID" />
+            </Principal>
+            <Dependent Role="Tokens">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Transactions_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="Transactions" Type="Self.Transactions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UID" />
+            </Principal>
+            <Dependent Role="Transactions">
+              <PropertyRef Name="UID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="AntivalyModelStoreContainer">
+          <EntitySet Name="Buyers" EntityType="Self.Buyers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Categories" EntityType="Self.Categories" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CouponCheck" EntityType="Self.CouponCheck" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Coupons" EntityType="Self.Coupons" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Deliveries" EntityType="Self.Deliveries" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Products" EntityType="Self.Products" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Tokens" EntityType="Self.Tokens" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Transactions" EntityType="Self.Transactions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="UserIDs" EntityType="Self.UserIDs" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Buyers_Users" Association="Self.FK_Buyers_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Buyers" EntitySet="Buyers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Deliveries_Users" Association="Self.FK_Deliveries_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Deliveries" EntitySet="Deliveries" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Products_Categories" Association="Self.FK_Products_Categories">
+            <End Role="Categories" EntitySet="Categories" />
+            <End Role="Products" EntitySet="Products" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Products_Users" Association="Self.FK_Products_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Products" EntitySet="Products" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Tokens_Users" Association="Self.FK_Tokens_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Tokens" EntitySet="Tokens" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Transactions_Users" Association="Self.FK_Transactions_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Transactions" EntitySet="Transactions" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="AntivalyModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Buyer">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="BuyerId" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="RewardPoint" Type="Double" Nullable="false" />
+          <Property Name="Rank" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Buyers_Users" FromRole="Buyers" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="Category">
+          <Key>
+            <PropertyRef Name="CatName" />
+          </Key>
+          <Property Name="CatID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CatName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Items" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Coupons" Relationship="Self.FK_Coupons_Categories" FromRole="Categories" ToRole="Coupons" />
+          <NavigationProperty Name="Products" Relationship="Self.FK_Products_Categories" FromRole="Categories" ToRole="Products" />
+        </EntityType>
+        <EntityType Name="CouponCheck">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CouponId" Type="Int32" Nullable="false" />
+          <Property Name="BuyerId" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="UsedAt" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="Coupon">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Code" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Discount" Type="Double" Nullable="false" />
+          <Property Name="NumOfUse" Type="Int32" Nullable="false" />
+          <Property Name="Category" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="MinOrder" Type="Double" />
+          <Property Name="CreatedAt" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="ExpiredAt" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Category1" Relationship="Self.FK_Coupons_Categories" FromRole="Coupons" ToRole="Categories" />
+        </EntityType>
+        <EntityType Name="Delivery">
+          <Key>
+            <PropertyRef Name="UID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="NumOfOrders" Type="Int32" Nullable="false" />
+          <Property Name="DeliveryCharge" Type="Double" Nullable="false" />
+          <Property Name="LevelCode" Type="Int32" Nullable="false" />
+          <Property Name="Balance" Type="Double" Nullable="false" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Deliveries_Users" FromRole="Deliveries" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="Product">
+          <Key>
+            <PropertyRef Name="PID" />
+          </Key>
+          <Property Name="PID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CatName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="PName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Qty" Type="Int32" Nullable="false" />
+          <Property Name="Price" Type="Double" Nullable="false" />
+          <Property Name="Descr" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="PStatus" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Discount" Type="Double" />
+          <Property Name="DiscountExp" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Category" Relationship="Self.FK_Products_Categories" FromRole="Products" ToRole="Categories" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Products_Users" FromRole="Products" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="Token">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="AccessToken" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CreatedAt" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="ExpiredAt" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Tokens_Users" FromRole="Tokens" ToRole="Users" />
+          <Property Name="AccStatus" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Transaction">
+          <Key>
+            <PropertyRef Name="TID" />
+          </Key>
+          <Property Name="TID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="TDetials" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="TAmount" Type="Double" Nullable="false" />
+          <Property Name="DMID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="TDate" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Transactions_Users" FromRole="Transactions" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="UserID">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" />
+          <Property Name="AccType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="LastID" Type="Int32" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="UID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Password" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Address" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Contact" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="AccType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="AccStatus" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="Buyers" Relationship="Self.FK_Buyers_Users" FromRole="Users" ToRole="Buyers" />
+          <NavigationProperty Name="Delivery" Relationship="Self.FK_Deliveries_Users" FromRole="Users" ToRole="Deliveries" />
+          <NavigationProperty Name="Products" Relationship="Self.FK_Products_Users" FromRole="Users" ToRole="Products" />
+          <NavigationProperty Name="Tokens" Relationship="Self.FK_Tokens_Users" FromRole="Users" ToRole="Tokens" />
+          <NavigationProperty Name="Transactions" Relationship="Self.FK_Transactions_Users" FromRole="Users" ToRole="Transactions" />
+        </EntityType>
+        <Association Name="FK_Buyers_Users">
+          <End Role="Users" Type="Self.User" Multiplicity="1" />
+          <End Role="Buyers" Type="Self.Buyer" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UID" />
+            </Principal>
+            <Dependent Role="Buyers">
+              <PropertyRef Name="BuyerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Coupons_Categories">
+          <End Role="Categories" Type="Self.Category" Multiplicity="1" />
+          <End Role="Coupons" Type="Self.Coupon" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Categories">
+              <PropertyRef Name="CatName" />
+            </Principal>
+            <Dependent Role="Coupons">
+              <PropertyRef Name="Category" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Products_Categories">
+          <End Role="Categories" Type="Self.Category" Multiplicity="1" />
+          <End Role="Products" Type="Self.Product" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Categories">
+              <PropertyRef Name="CatName" />
+            </Principal>
+            <Dependent Role="Products">
+              <PropertyRef Name="CatName" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Deliveries_Users">
+          <End Role="Users" Type="Self.User" Multiplicity="1" />
+          <End Role="Deliveries" Type="Self.Delivery" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UID" />
+            </Principal>
+            <Dependent Role="Deliveries">
+              <PropertyRef Name="UID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Products_Users">
+          <End Role="Users" Type="Self.User" Multiplicity="1" />
+          <End Role="Products" Type="Self.Product" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UID" />
+            </Principal>
+            <Dependent Role="Products">
+              <PropertyRef Name="UID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Tokens_Users">
+          <End Role="Users" Type="Self.User" Multiplicity="1" />
+          <End Role="Tokens" Type="Self.Token" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UID" />
+            </Principal>
+            <Dependent Role="Tokens">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Transactions_Users">
+          <End Role="Users" Type="Self.User" Multiplicity="1" />
+          <End Role="Transactions" Type="Self.Transaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UID" />
+            </Principal>
+            <Dependent Role="Transactions">
+              <PropertyRef Name="UID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="AntivalyEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Buyers" EntityType="Self.Buyer" />
+          <EntitySet Name="Categories" EntityType="Self.Category" />
+          <EntitySet Name="CouponChecks" EntityType="Self.CouponCheck" />
+          <EntitySet Name="Coupons" EntityType="Self.Coupon" />
+          <EntitySet Name="Deliveries" EntityType="Self.Delivery" />
+          <EntitySet Name="Products" EntityType="Self.Product" />
+          <EntitySet Name="Tokens" EntityType="Self.Token" />
+          <EntitySet Name="Transactions" EntityType="Self.Transaction" />
+          <EntitySet Name="UserIDs" EntityType="Self.UserID" />
+          <EntitySet Name="Users" EntityType="Self.User" />
+          <AssociationSet Name="FK_Buyers_Users" Association="Self.FK_Buyers_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Buyers" EntitySet="Buyers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Coupons_Categories" Association="Self.FK_Coupons_Categories">
+            <End Role="Categories" EntitySet="Categories" />
+            <End Role="Coupons" EntitySet="Coupons" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Products_Categories" Association="Self.FK_Products_Categories">
+            <End Role="Categories" EntitySet="Categories" />
+            <End Role="Products" EntitySet="Products" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Deliveries_Users" Association="Self.FK_Deliveries_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Deliveries" EntitySet="Deliveries" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Products_Users" Association="Self.FK_Products_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Products" EntitySet="Products" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Tokens_Users" Association="Self.FK_Tokens_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Tokens" EntitySet="Tokens" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Transactions_Users" Association="Self.FK_Transactions_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Transactions" EntitySet="Transactions" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="AntivalyModelStoreContainer" CdmEntityContainer="AntivalyEntities">
+          <EntitySetMapping Name="Buyers">
+            <EntityTypeMapping TypeName="AntivalyModel.Buyer">
+              <MappingFragment StoreEntitySet="Buyers">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="BuyerId" ColumnName="BuyerId" />
+                <ScalarProperty Name="RewardPoint" ColumnName="RewardPoint" />
+                <ScalarProperty Name="Rank" ColumnName="Rank" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Categories">
+            <EntityTypeMapping TypeName="AntivalyModel.Category">
+              <MappingFragment StoreEntitySet="Categories">
+                <ScalarProperty Name="CatID" ColumnName="CatID" />
+                <ScalarProperty Name="CatName" ColumnName="CatName" />
+                <ScalarProperty Name="Items" ColumnName="Items" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CouponChecks">
+            <EntityTypeMapping TypeName="AntivalyModel.CouponCheck">
+              <MappingFragment StoreEntitySet="CouponCheck">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="CouponId" ColumnName="CouponId" />
+                <ScalarProperty Name="BuyerId" ColumnName="BuyerId" />
+                <ScalarProperty Name="UsedAt" ColumnName="UsedAt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Coupons">
+            <EntityTypeMapping TypeName="AntivalyModel.Coupon">
+              <MappingFragment StoreEntitySet="Coupons">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Code" ColumnName="Code" />
+                <ScalarProperty Name="Discount" ColumnName="Discount" />
+                <ScalarProperty Name="NumOfUse" ColumnName="NumOfUse" />
+                <ScalarProperty Name="Category" ColumnName="Category" />
+                <ScalarProperty Name="MinOrder" ColumnName="MinOrder" />
+                <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+                <ScalarProperty Name="ExpiredAt" ColumnName="ExpiredAt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Deliveries">
+            <EntityTypeMapping TypeName="AntivalyModel.Delivery">
+              <MappingFragment StoreEntitySet="Deliveries">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="UID" ColumnName="UID" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="NumOfOrders" ColumnName="NumOfOrders" />
+                <ScalarProperty Name="DeliveryCharge" ColumnName="DeliveryCharge" />
+                <ScalarProperty Name="LevelCode" ColumnName="LevelCode" />
+                <ScalarProperty Name="Balance" ColumnName="Balance" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Products">
+            <EntityTypeMapping TypeName="AntivalyModel.Product">
+              <MappingFragment StoreEntitySet="Products">
+                <ScalarProperty Name="PID" ColumnName="PID" />
+                <ScalarProperty Name="UID" ColumnName="UID" />
+                <ScalarProperty Name="CatName" ColumnName="CatName" />
+                <ScalarProperty Name="PName" ColumnName="PName" />
+                <ScalarProperty Name="Qty" ColumnName="Qty" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Descr" ColumnName="Descr" />
+                <ScalarProperty Name="PStatus" ColumnName="PStatus" />
+                <ScalarProperty Name="Discount" ColumnName="Discount" />
+                <ScalarProperty Name="DiscountExp" ColumnName="DiscountExp" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tokens">
+            <EntityTypeMapping TypeName="AntivalyModel.Token">
+              <MappingFragment StoreEntitySet="Tokens">
+                <ScalarProperty Name="AccStatus" ColumnName="AccStatus" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="AccessToken" ColumnName="AccessToken" />
+                <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+                <ScalarProperty Name="ExpiredAt" ColumnName="ExpiredAt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Transactions">
+            <EntityTypeMapping TypeName="AntivalyModel.Transaction">
+              <MappingFragment StoreEntitySet="Transactions">
+                <ScalarProperty Name="TID" ColumnName="TID" />
+                <ScalarProperty Name="UID" ColumnName="UID" />
+                <ScalarProperty Name="TDetials" ColumnName="TDetials" />
+                <ScalarProperty Name="TAmount" ColumnName="TAmount" />
+                <ScalarProperty Name="DMID" ColumnName="DMID" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="TDate" ColumnName="TDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UserIDs">
+            <EntityTypeMapping TypeName="AntivalyModel.UserID">
+              <MappingFragment StoreEntitySet="UserIDs">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="AccType" ColumnName="AccType" />
+                <ScalarProperty Name="LastID" ColumnName="LastID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="AntivalyModel.User">
+              <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="UID" ColumnName="UID" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="Contact" ColumnName="Contact" />
+                <ScalarProperty Name="AccType" ColumnName="AccType" />
+                <ScalarProperty Name="AccStatus" ColumnName="AccStatus" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="true" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

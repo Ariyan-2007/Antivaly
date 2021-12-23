@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html ng-app='index'>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.js"></script>
+    <head>
+        <meta charset="utf-8">
+        <title>Antivaly</title>
+        <link rel="stylesheet" href="Styles/Fonts.css">
+        <link rel="stylesheet" href="Styles/header.css">
+        <link rel="stylesheet" href="Styles/About.css">
+        <link rel="stylesheet" href="Styles/Forms.css">
+        <link rel="stylesheet" href="Styles/Profile.css">
+    </head>
+    
+    <body>
+        
+        <div class="header" style="width: 100%; position: sticky; top: 0px;" ng-controller='NavController'>
+            <label><span style="color: #d41b1b;">Anti</span>valy</label>         
+            <a class="{{login}}" href="#!/login" ng-hide="loggedIn">Login</a>
+            <a class="{{about}}" href="#!/about" ng-hide="loggedIn">About</a>
+            <a class="{{contact}}" href="#!/contact" ng-hide="loggedIn">Contact</a>    
+            <a class="{{home}}" href="#!/" ng-hide="loggedIn">Home</a>
+            <a href="#!/" ng-show="loggedIn" ng-click="logOut()">Logout</a>
+            <a class="{{profile}}" href="#!/profile" ng-show="loggedIn">Profile</a>
+            <a class="{{dashboard}}" href="#!/dashboard" ng-show="loggedIn">Dashboard</a>
+            
+        </div>
+        
+        <div ng-view></div>
+        
+
+    </body>
+    
+    <script src="Scripts/Navigation.js"></script>
+    <script src="Controller/NavigationController.js"></script>
+    <script src="Controller/LoginController.js"></script>
+    <script src="Controller/RegistrationController.js"></script>
+    <script src="Controller/ProfileController.js"></script>
+    <script src="Controller/DashboardController.js"></script>
+    <script src="Controller/Admin_ControlPanel.js"></script>
+    <script src="Controller/Admin_Demographics.js"></script>
+    <script src="Controller/Admin_OfferCoupon.js"></script>
+</html>
