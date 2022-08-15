@@ -1,11 +1,11 @@
 # Antivaly
-ASP .NET Final Project ( Admin User )
+ASP .NET Final Project (Admin User)
 
 Faculty: Tanvir Ahmed
 
 Group Members :
 
-                  1. MD. Ariyan Jahangir
+                  1. MD. Ariyan Jahangir (Admin User)
                   2. MD. Mohimen Molla
                   3. MD. Mehedi Hasan
                   4. Kaniz Fatema Kanta
