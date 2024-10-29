@@ -15,24 +15,15 @@ namespace BLL
         {
             Mapper.Initialize(cfg =>
             {
-                cfg.CreateMap<Buyer, BuyerModel>();
-                cfg.CreateMap<BuyerModel, Buyer>();
-                cfg.CreateMap<Category, CategoryModel>();
-                cfg.CreateMap<CategoryModel, Category>();
-                cfg.CreateMap<Coupon, CouponModel>();
-                cfg.CreateMap<CouponModel, Coupon>();
-                cfg.CreateMap<Token, TokenModel>();
-                cfg.CreateMap<TokenModel, Token>();
-                cfg.CreateMap<User, UserModel>();
-                cfg.CreateMap<UserModel, User>();
-                cfg.CreateMap<UserID, UserIdModel>();
-                cfg.CreateMap<UserIdModel, UserID>();
-                cfg.CreateMap<Delivery, DeliveryModel>();
-                cfg.CreateMap<DeliveryModel, Delivery>();
-                cfg.CreateMap<Transaction, TransactionModel>();
-                cfg.CreateMap<TransactionModel, Transaction>();
-                cfg.CreateMap<Product, ProductModel>();
-                cfg.CreateMap<ProductModel, Product>();
+                cfg.CreateMap<Buyer, BuyerModel>().ReverseMap();
+                cfg.CreateMap<Category, CategoryModel>().ReverseMap();
+                cfg.CreateMap<Coupon, CouponModel>().ReverseMap();
+                cfg.CreateMap<Token, TokenModel>().ReverseMap();
+                cfg.CreateMap<User, UserModel>().ReverseMap();
+                cfg.CreateMap<UserID, UserIdModel>().ReverseMap();
+                cfg.CreateMap<Delivery, DeliveryModel>().ReverseMap();
+                cfg.CreateMap<Transaction, TransactionModel>().ReverseMap();
+                cfg.CreateMap<Product, ProductModel>().ReverseMap();
             });
         }
 
@@ -40,7 +31,7 @@ namespace BLL
 
         public static void Increment(User user)
         {
-            
+
             if (user.AccType == "Buyer")
             {
                 var data = DataSupplier.UserIdDataAccess().Get(2);

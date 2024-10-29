@@ -15,24 +15,15 @@ namespace BLL
         {
             Mapper.Initialize(cfg =>
             {
-                cfg.CreateMap<Buyer, BuyerModel>();
-                cfg.CreateMap<BuyerModel, Buyer>();
-                cfg.CreateMap<Category, CategoryModel>();
-                cfg.CreateMap<CategoryModel, Category>();
-                cfg.CreateMap<Coupon, CouponModel>();
-                cfg.CreateMap<CouponModel, Coupon>();
-                cfg.CreateMap<Token, TokenModel>();
-                cfg.CreateMap<TokenModel, Token>();
-                cfg.CreateMap<User, UserModel>();
-                cfg.CreateMap<UserModel, User>();
-                cfg.CreateMap<UserID, UserIdModel>();
-                cfg.CreateMap<UserIdModel, UserID>();
-                cfg.CreateMap<Delivery, DeliveryModel>();
-                cfg.CreateMap<DeliveryModel, Delivery>();
-                cfg.CreateMap<Transaction, TransactionModel>();
-                cfg.CreateMap<TransactionModel, Transaction>();
-                cfg.CreateMap<Product, ProductModel>();
-                cfg.CreateMap<ProductModel, Product>();
+                cfg.CreateMap<Buyer, BuyerModel>().ReverseMap();
+                cfg.CreateMap<Category, CategoryModel>().ReverseMap();
+                cfg.CreateMap<Coupon, CouponModel>().ReverseMap();
+                cfg.CreateMap<Token, TokenModel>().ReverseMap();
+                cfg.CreateMap<User, UserModel>().ReverseMap();
+                cfg.CreateMap<UserID, UserIdModel>().ReverseMap();
+                cfg.CreateMap<Delivery, DeliveryModel>().ReverseMap();
+                cfg.CreateMap<Transaction, TransactionModel>().ReverseMap();
+                cfg.CreateMap<Product, ProductModel>().ReverseMap();
             });
         }
 
@@ -55,8 +46,8 @@ namespace BLL
         public static bool Change(string uid, string AccStatus)
         {
             var data = Get(uid);
-            var dmData = DeliveryService.Get(uid);  
-            if(AccStatus == "Blocked")
+            var dmData = DeliveryService.Get(uid);
+            if (AccStatus == "Blocked")
             {
                 if (data.AccType == "Delivery Man")
                 {
@@ -66,11 +57,11 @@ namespace BLL
                 }
                 else
                 { data.AccStatus = "Blocked"; }
-                
+
             }
-            else if(AccStatus == "Active")
+            else if (AccStatus == "Active")
             {
-                if(data.AccType == "Delivery Man" && data.AccStatus == "Pending")
+                if (data.AccType == "Delivery Man" && data.AccStatus == "Pending")
                 {
                     data.AccStatus = "Active";
                     var delivery = new Delivery();
@@ -82,7 +73,7 @@ namespace BLL
                     delivery.Balance = 0;
                     DataSupplier.DeliveryDataAccess().Add(delivery);
                 }
-                else if(data.AccType == "Delivery Man" && data.AccStatus == "Blocked")
+                else if (data.AccType == "Delivery Man" && data.AccStatus == "Blocked")
                 {
                     data.AccStatus = "Active";
                     dmData.Status = "Free";
@@ -90,7 +81,7 @@ namespace BLL
                 }
                 else
                 { data.AccStatus = "Active"; }
-                
+
             }
             DataSupplier.UserDataAccess().Edit(Mapper.Map<User>(data));
             return true;
