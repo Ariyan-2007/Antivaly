@@ -10,3 +10,9 @@ C:\Users\User\source\repos\AntivalyWebApi\AntivalyWebApi\BEL\obj\Debug\BEL.cspro
 C:\Users\User\source\repos\AntivalyWebApi\AntivalyWebApi\BEL\obj\Debug\BEL.csproj.CoreCompileInputs.cache
 C:\Users\User\source\repos\AntivalyWebApi\AntivalyWebApi\BEL\obj\Debug\BEL.dll
 C:\Users\User\source\repos\AntivalyWebApi\AntivalyWebApi\BEL\obj\Debug\BEL.pdb
+D:\Antivaly\BEL\bin\Debug\BEL.dll
+D:\Antivaly\BEL\bin\Debug\BEL.pdb
+D:\Antivaly\BEL\obj\Debug\BEL.csproj.AssemblyReference.cache
+D:\Antivaly\BEL\obj\Debug\BEL.csproj.CoreCompileInputs.cache
+D:\Antivaly\BEL\obj\Debug\BEL.dll
+D:\Antivaly\BEL\obj\Debug\BEL.pdb

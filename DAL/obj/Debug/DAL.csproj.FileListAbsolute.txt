@@ -18,3 +18,13 @@ C:\Users\User\source\repos\AntivalyWebApi\AntivalyWebApi\DAL\obj\Debug\DAL.cspro
 C:\Users\User\source\repos\AntivalyWebApi\AntivalyWebApi\DAL\obj\Debug\DAL.csproj.CopyComplete
 C:\Users\User\source\repos\AntivalyWebApi\AntivalyWebApi\DAL\obj\Debug\DAL.dll
 C:\Users\User\source\repos\AntivalyWebApi\AntivalyWebApi\DAL\obj\Debug\DAL.pdb
+D:\Antivaly\DAL\bin\Debug\DAL.dll.config
+D:\Antivaly\DAL\bin\Debug\DAL.dll
+D:\Antivaly\DAL\bin\Debug\DAL.pdb
+D:\Antivaly\DAL\bin\Debug\EntityFramework.dll
+D:\Antivaly\DAL\bin\Debug\EntityFramework.xml
+D:\Antivaly\DAL\obj\Debug\DAL.csproj.AssemblyReference.cache
+D:\Antivaly\DAL\obj\Debug\DAL.csproj.CoreCompileInputs.cache
+D:\Antivaly\DAL\obj\Debug\DAL.csproj.Up2Date
+D:\Antivaly\DAL\obj\Debug\DAL.dll
+D:\Antivaly\DAL\obj\Debug\DAL.pdb
