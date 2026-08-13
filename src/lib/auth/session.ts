@@ -6,8 +6,8 @@ import type { UserSummaryResponse } from "@/types/api";
 
 /**
  * Reads the current customer session for Server Components that need to gate a page
- * (cart/checkout/orders/account). Relies on middleware having already refreshed an
- * expired access token before render (see src/middleware.ts) — Server Components can't
+ * (cart/checkout/orders/account). Relies on proxy.ts having already refreshed an
+ * expired access token before render (see src/proxy.ts) — Server Components can't
  * set cookies themselves, so no refresh-retry happens here.
  *
  * Treats ANY failure (not just "not authenticated") as no-session. If the API is briefly

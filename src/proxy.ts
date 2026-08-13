@@ -6,8 +6,8 @@ import { refreshTokens } from "./lib/auth/refresh";
 
 const intlMiddleware = createMiddleware(routing);
 
-export default async function middleware(request: NextRequest) {
-  // Middleware runs on every request with no error boundary above it — a throw here would
+export default async function proxy(request: NextRequest) {
+  // Proxy runs on every request with no error boundary above it — a throw here would
   // take the entire site down, so this is wrapped defensively even though nothing inside
   // should realistically throw (refreshTokens already never throws).
   try {

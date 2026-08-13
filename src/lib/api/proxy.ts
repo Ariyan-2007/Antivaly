@@ -20,7 +20,7 @@ type ProxyOptions = {
 /**
  * Shared implementation for every authed Route Handler (cart, orders, /api/auth/me).
  * Attaches the access-token cookie as a Bearer token, and if the upstream call comes back
- * 401 (access token expired without middleware having caught it), refreshes once using the
+ * 401 (access token expired without proxy.ts having caught it), refreshes once using the
  * refresh-token cookie, rotates cookies on the response, and retries — matching the
  * blueprint's "rotates on every use" refresh-token requirement.
  *
