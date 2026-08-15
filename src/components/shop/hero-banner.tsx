@@ -14,7 +14,7 @@ export function HeroBanner({ business }: { business: BusinessResponse }) {
   return (
     <section className="flex flex-col gap-6">
       <div className="relative overflow-hidden rounded-2xl bg-muted">
-        <div className="relative aspect-[16/7] w-full sm:aspect-[21/7]">
+        <div className="relative aspect-16/7 w-full sm:aspect-21/7">
           {bannerUrl ? (
             <Image
               src={bannerUrl}
@@ -25,9 +25,9 @@ export function HeroBanner({ business }: { business: BusinessResponse }) {
               className="object-cover"
             />
           ) : (
-            <div className="size-full bg-gradient-to-br from-primary to-primary/70" />
+            <div className="size-full bg-linear-to-br from-primary to-primary/70" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
         </div>
         <div className="absolute inset-x-0 bottom-0 flex flex-col gap-3 p-5 sm:p-8">
           <h1 className="font-heading max-w-xl text-2xl font-bold text-white sm:text-4xl">
