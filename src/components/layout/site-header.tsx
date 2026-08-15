@@ -1,5 +1,7 @@
 import { Suspense } from "react";
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
+import { Zap, Truck, Store, ShieldCheck } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { SearchBar } from "@/components/shop/search-bar";
 import { CartButton } from "@/components/cart/cart-button";
@@ -15,7 +17,7 @@ function SearchBarFallback() {
   return <Skeleton className="h-8 w-full rounded-lg" />;
 }
 
-export function SiteHeader({
+export async function SiteHeader({
   business,
   categories,
 }: {
@@ -24,9 +26,29 @@ export function SiteHeader({
 }) {
   const businessName = business.name || "Antivaly";
   const logoUrl = isValidImageUrl(business.logoUrl) ? business.logoUrl : null;
+  const t = await getTranslations("home");
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
+      <div className="hidden items-center justify-center gap-6 bg-linear-to-r from-primary to-primary/80 px-4 py-1.5 text-xs font-medium text-primary-foreground sm:flex">
+        <span className="inline-flex items-center gap-1.5">
+          <Zap className="size-3.5 fill-current" />
+          {t("trustFast")}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          {business.deliveryModuleEnabled ? (
+            <Truck className="size-3.5" />
+          ) : (
+            <Store className="size-3.5" />
+          )}
+          {business.deliveryModuleEnabled ? t("trustCod") : t("trustPickup")}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <ShieldCheck className="size-3.5" />
+          {t("trustSecure")}
+        </span>
+      </div>
+
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:gap-6">
         <Link href="/" className="flex shrink-0 items-center gap-2">
           {logoUrl ? (

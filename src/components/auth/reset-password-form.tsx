@@ -13,22 +13,25 @@ import { Label } from "@/components/ui/label";
 import { Link, useRouter } from "@/i18n/navigation";
 import { browserFetch } from "@/lib/api/browser";
 import { ApiError } from "@/lib/api/client";
-import { useAuthContext } from "@/components/providers/auth-provider";
-import type { UserSummaryResponse } from "@/types/api";
 
-const schema = z.object({
-  email: z.string().min(1).email(),
-  password: z.string().min(1),
-});
+const schema = z
+  .object({
+    newPassword: z.string().min(8),
+    confirmPassword: z.string().min(8),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "passwordMismatch",
+  });
 
 type FormValues = z.infer<typeof schema>;
 
-export function LoginForm() {
+export function ResetPasswordForm() {
   const t = useTranslations("auth");
   const tc = useTranslations("common");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { setUser } = useAuthContext();
+  const token = searchParams.get("token");
 
   const {
     register,
@@ -38,14 +41,14 @@ export function LoginForm() {
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   async function onSubmit(values: FormValues) {
+    if (!token) return;
     try {
-      const user = await browserFetch<UserSummaryResponse>("/api/auth/login", {
+      await browserFetch<void>("/api/auth/reset-password", {
         method: "POST",
-        body: values,
+        body: { token, newPassword: values.newPassword },
       });
-      setUser(user);
-      const redirect = searchParams.get("redirect");
-      router.push(redirect && redirect.startsWith("/") ? redirect : "/");
+      toast.success(t("resetSuccess"));
+      router.push("/login");
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.errors) {
@@ -60,36 +63,44 @@ export function LoginForm() {
     }
   }
 
+  if (!token) {
+    return (
+      <div className="flex flex-col items-center gap-3 rounded-xl border border-border p-6 text-center">
+        <p className="text-sm text-muted-foreground">{t("resetMissingToken")}</p>
+        <Link href="/forgot-password" className="text-sm font-medium text-primary hover:underline">
+          {t("requestNewLink")}
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="email">{t("email")}</Label>
-        <Input id="email" type="email" placeholder={t("emailPlaceholder")} {...register("email")} />
-        {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+        <Label htmlFor="newPassword">{t("newPassword")}</Label>
+        <Input
+          id="newPassword"
+          type="password"
+          placeholder={t("passwordPlaceholder")}
+          {...register("newPassword")}
+        />
+        {errors.newPassword && (
+          <p className="text-xs text-destructive">{errors.newPassword.message}</p>
+        )}
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="password">{t("password")}</Label>
-          <Link href="/forgot-password" className="text-xs font-medium text-primary hover:underline">
-            {t("forgotLink")}
-          </Link>
-        </div>
-        <Input id="password" type="password" {...register("password")} />
-        {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
+        <Label htmlFor="confirmPassword">{t("confirmPassword")}</Label>
+        <Input id="confirmPassword" type="password" {...register("confirmPassword")} />
+        {errors.confirmPassword && (
+          <p className="text-xs text-destructive">{t("passwordMismatch")}</p>
+        )}
       </div>
 
       <Button type="submit" size="lg" disabled={isSubmitting} className="mt-2">
         {isSubmitting && <Loader2 className="size-4 animate-spin" />}
-        {t("submitLogin")}
+        {t("submitReset")}
       </Button>
-
-      <p className="text-center text-sm text-muted-foreground">
-        {t("noAccount")}{" "}
-        <Link href="/register" className="font-medium text-primary hover:underline">
-          {t("registerLink")}
-        </Link>
-      </p>
     </form>
   );
 }

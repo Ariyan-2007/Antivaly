@@ -23,7 +23,7 @@ export function ProductCard({
   const isOutOfStock = product.trackInventory && product.stockQuantity <= 0;
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-lg">
+    <div className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-foreground/10">
       <Link
         href={productHref(product.id, product.slug)}
         className="relative block aspect-square overflow-hidden bg-muted"
@@ -34,7 +34,7 @@ export function ProductCard({
             alt={productName}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-muted-foreground text-xs">
@@ -42,7 +42,7 @@ export function ProductCard({
           </div>
         )}
         {!!product.discountPercent && product.discountPercent > 0 && (
-          <span className="absolute left-2 top-2 rounded-full bg-deal px-2 py-1 text-xs font-bold text-deal-foreground shadow-sm">
+          <span className="absolute left-2 top-2 rounded-full bg-deal px-2 py-1 text-xs font-bold text-deal-foreground shadow-sm shadow-deal/40">
             -{product.discountPercent}%
           </span>
         )}

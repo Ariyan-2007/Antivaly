@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { OrderStatusBadge, PaymentStatusBadge } from "@/components/orders/order-status-badge";
+import { OrderStatusTimeline } from "@/components/orders/order-status-timeline";
 import { CancelOrderButton } from "@/components/orders/cancel-order-button";
 import { getServerSession } from "@/lib/auth/session";
 import { serverAuthedFetch } from "@/lib/auth/authed-fetch";
@@ -102,6 +103,10 @@ export default async function OrderDetailPage({
           </div>
         </div>
       </div>
+
+      {(order.statusHistory ?? []).length > 0 && (
+        <OrderStatusTimeline events={order.statusHistory ?? []} locale={locale} />
+      )}
 
       {address && (
         <div className="mt-4 rounded-xl border border-border p-5">

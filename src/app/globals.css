@@ -86,7 +86,7 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --radius: 0.75rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -137,6 +137,12 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image: radial-gradient(
+      ellipse 1200px 480px at 50% -10%,
+      color-mix(in oklch, var(--brand), transparent 92%),
+      transparent
+    );
+    background-repeat: no-repeat;
   }
   html {
     @apply font-sans scroll-smooth;

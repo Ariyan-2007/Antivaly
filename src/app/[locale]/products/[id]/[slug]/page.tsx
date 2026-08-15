@@ -16,6 +16,7 @@ import { StockBadge } from "@/components/shop/stock-badge";
 import { AddToCartButton } from "@/components/shop/add-to-cart-button";
 import { ProductGrid } from "@/components/shop/product-grid";
 import { Badge } from "@/components/ui/badge";
+import { Truck, Store } from "lucide-react";
 import { getBusiness, getCategories, getProduct, getProducts } from "@/lib/api/catalog";
 import { categoryHref } from "@/lib/routes";
 import { DEFAULT_CURRENCY } from "@/lib/constants";
@@ -71,6 +72,7 @@ export default async function ProductDetailPage({ params }: Props) {
   const images = product.images ?? [];
   const tags = product.tags ?? [];
   const category = categories.find((c) => c.id === product.categoryId);
+  const variants = product.variants ?? [];
   const relatedProducts = product.categoryId
     ? (await getProducts({ categoryId: product.categoryId }).catch(() => [])).filter(
         (p) => p.id !== product.id
@@ -183,11 +185,32 @@ export default async function ProductDetailPage({ params }: Props) {
             </div>
           )}
 
+          {variants.length > 0 && (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium text-muted-foreground">{t("availableOptions")}</span>
+              <div className="flex flex-wrap gap-1.5">
+                {variants.map((variant) => (
+                  <Badge key={variant.id} variant="outline">
+                    {variant.attributeSummary || variant.sku || t("optionFallback")}
+                  </Badge>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">{t("optionsNote")}</p>
+            </div>
+          )}
+
           <div className="border-t border-border pt-4">
             <AddToCartButton productId={product.id} disabled={isOutOfStock} />
           </div>
 
-          <p className="text-xs text-muted-foreground">{t("shareTrust")}</p>
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            {business.deliveryModuleEnabled ? (
+              <Truck className="size-3.5 shrink-0" />
+            ) : (
+              <Store className="size-3.5 shrink-0" />
+            )}
+            {business.deliveryModuleEnabled ? t("shareTrust") : t("shareTrustPickup")}
+          </p>
 
           {product.description && (
             <div className="border-t border-border pt-4">

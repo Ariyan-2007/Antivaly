@@ -23,7 +23,10 @@ export default async function CheckoutPage({
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
       <h1 className="font-heading mb-6 text-2xl font-bold text-foreground">{t("title")}</h1>
-      <CheckoutView currency={business.currency || DEFAULT_CURRENCY} />
+      <CheckoutView
+        currency={business.currency || DEFAULT_CURRENCY}
+        deliveryModuleEnabled={business.deliveryModuleEnabled}
+      />
     </div>
   );
 }

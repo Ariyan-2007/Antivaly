@@ -21,7 +21,7 @@ export function MobileBottomNav() {
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 md:hidden">
       <div className="grid grid-cols-4">
         {items.map((item) => {
           const isActive = pathname === item.href;

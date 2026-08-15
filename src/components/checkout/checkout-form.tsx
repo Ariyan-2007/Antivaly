@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
-import { Loader2, Truck } from "lucide-react";
+import { Loader2, Truck, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,7 +34,15 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export function CheckoutForm({ cart, currency }: { cart: NormalizedCart; currency: string }) {
+export function CheckoutForm({
+  cart,
+  currency,
+  deliveryModuleEnabled,
+}: {
+  cart: NormalizedCart;
+  currency: string;
+  deliveryModuleEnabled: boolean;
+}) {
   const t = useTranslations("checkout");
   const tc = useTranslations("common");
   const locale = useLocale();
@@ -54,7 +62,10 @@ export function CheckoutForm({ cart, currency }: { cart: NormalizedCart; currenc
   });
 
   const city = watch("city") || "";
-  const deliveryFee = useMemo(() => computeDeliveryFee(city, cart.subtotal), [city, cart.subtotal]);
+  const deliveryFee = useMemo(
+    () => (deliveryModuleEnabled ? computeDeliveryFee(city, cart.subtotal) : 0),
+    [deliveryModuleEnabled, city, cart.subtotal]
+  );
   const total = cart.subtotal + deliveryFee;
 
   function onSubmit(values: FormValues) {
@@ -171,10 +182,12 @@ export function CheckoutForm({ cart, currency }: { cart: NormalizedCart; currenc
             <span className="text-muted-foreground">{tc("subtotal")}</span>
             <span>{formatMoney(cart.subtotal, currency, locale)}</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">{tc("deliveryFee")}</span>
-            <span>{deliveryFee === 0 ? tc("free") : formatMoney(deliveryFee, currency, locale)}</span>
-          </div>
+          {deliveryModuleEnabled && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">{tc("deliveryFee")}</span>
+              <span>{deliveryFee === 0 ? tc("free") : formatMoney(deliveryFee, currency, locale)}</span>
+            </div>
+          )}
           <div className="flex justify-between pt-1 text-base font-bold text-foreground">
             <span>{tc("total")}</span>
             <span>{formatMoney(total, currency, locale)}</span>
@@ -182,11 +195,23 @@ export function CheckoutForm({ cart, currency }: { cart: NormalizedCart; currenc
         </div>
 
         <div className="flex items-start gap-2 rounded-lg bg-primary/10 p-3">
-          <Truck className="mt-0.5 size-4 shrink-0 text-primary" />
-          <div>
-            <p className="text-sm font-semibold text-foreground">{t("codTitle")}</p>
-            <p className="text-xs text-muted-foreground">{t("codDescription")}</p>
-          </div>
+          {deliveryModuleEnabled ? (
+            <>
+              <Truck className="mt-0.5 size-4 shrink-0 text-primary" />
+              <div>
+                <p className="text-sm font-semibold text-foreground">{t("codTitle")}</p>
+                <p className="text-xs text-muted-foreground">{t("codDescription")}</p>
+              </div>
+            </>
+          ) : (
+            <>
+              <Store className="mt-0.5 size-4 shrink-0 text-primary" />
+              <div>
+                <p className="text-sm font-semibold text-foreground">{t("pickupTitle")}</p>
+                <p className="text-xs text-muted-foreground">{t("pickupDescription")}</p>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

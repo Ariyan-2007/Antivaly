@@ -59,6 +59,10 @@ export type BusinessResponse = {
   contactEmail: string | null;
   contactPhone: string | null;
   status: BusinessStatus;
+  /** Whether this Business runs a delivery workflow at all (added 2026-08-15) — some sellers are pickup-only or use a third-party courier. */
+  deliveryModuleEnabled: boolean;
+  /** Flat fallback fee applied server-side when checkout omits `deliveryFee` (added 2026-08-15). */
+  defaultDeliveryFee: number;
   createdAt: string;
 };
 
@@ -75,6 +79,15 @@ export type CategoryResponse = {
 };
 
 export type ProductStatus = "Draft" | "Active" | "OutOfStock" | "Archived";
+
+/** Display-only — not purchasable through this app's API, see product detail page's usage. */
+export type ProductVariantResponse = {
+  id: string;
+  attributeSummary: string | null;
+  sku: string | null;
+  priceOverride: number | null;
+  stockQuantity: number;
+};
 
 export type ProductResponse = {
   id: string;
@@ -95,6 +108,8 @@ export type ProductResponse = {
   images: string[] | null;
   tags: string[] | null;
   status: ProductStatus;
+  /** BackOffice-managed variants (added 2026-08-15) — display only, not addable to cart individually. */
+  variants: ProductVariantResponse[] | null;
 };
 
 export type CartItem = {
@@ -128,7 +143,8 @@ export type ShippingAddress = {
 
 export type CheckoutRequest = {
   shippingAddress: ShippingAddress;
-  deliveryFee: number;
+  /** Optional as of 2026-08-15 — omit/null to fall back to the Business's `defaultDeliveryFee`. */
+  deliveryFee?: number | null;
 };
 
 export type OrderStatus =
@@ -141,6 +157,18 @@ export type OrderStatus =
   | "Refunded";
 
 export type PaymentStatus = "Pending" | "Paid" | "Failed" | "Refunded";
+
+export type OrderStatusEventResponse = {
+  status: OrderStatus;
+  timestamp: string;
+  note: string | null;
+};
+
+export type PaymentStatusEventResponse = {
+  status: PaymentStatus;
+  timestamp: string;
+  note: string | null;
+};
 
 export type OrderResponse = {
   id: string;
@@ -157,6 +185,9 @@ export type OrderResponse = {
   paymentStatus: PaymentStatus;
   shippingAddress: ShippingAddress | null;
   deliveryAgentUserId: string | null;
+  /** Full status timeline (added 2026-08-15) — build the tracking view from this, not just `status`. */
+  statusHistory: OrderStatusEventResponse[] | null;
+  paymentStatusHistory: PaymentStatusEventResponse[] | null;
   placedAt: string;
 };
 

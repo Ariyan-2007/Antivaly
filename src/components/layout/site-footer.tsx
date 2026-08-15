@@ -1,4 +1,4 @@
-import { Truck, Mail, Phone } from "lucide-react";
+import { Truck, Store, Mail, Phone } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { categoryHref } from "@/lib/routes";
@@ -15,16 +15,26 @@ export function SiteFooter({
   const tNav = useTranslations("nav");
 
   return (
-    <footer className="mt-16 border-t border-border bg-card pb-20 md:pb-0">
+    <footer className="relative mt-16 border-t border-border bg-card pb-20 md:pb-0">
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/40 to-transparent" />
       <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:grid sm:grid-cols-3">
         <div className="flex flex-col gap-2">
-          <h3 className="font-heading font-bold text-foreground">{business.name}</h3>
+          <h3 className="font-heading text-lg font-bold text-foreground">{business.name}</h3>
           {business.description && (
             <p className="text-sm text-muted-foreground line-clamp-3">{business.description}</p>
           )}
           <span className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-            <Truck className="size-3.5" />
-            {t("codBadge")}
+            {business.deliveryModuleEnabled ? (
+              <>
+                <Truck className="size-3.5" />
+                {t("codBadge")}
+              </>
+            ) : (
+              <>
+                <Store className="size-3.5" />
+                {t("pickupBadge")}
+              </>
+            )}
           </span>
         </div>
 
@@ -49,7 +59,7 @@ export function SiteFooter({
           {business.contactEmail && (
             <a
               href={`mailto:${business.contactEmail}`}
-              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary"
+              className="flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-primary"
             >
               <Mail className="size-3.5" />
               {business.contactEmail}
@@ -58,7 +68,7 @@ export function SiteFooter({
           {business.contactPhone && (
             <a
               href={`tel:${business.contactPhone}`}
-              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary"
+              className="flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-primary"
             >
               <Phone className="size-3.5" />
               {business.contactPhone}

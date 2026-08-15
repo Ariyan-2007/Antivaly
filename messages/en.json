@@ -46,8 +46,13 @@
     "shopByCategory": "Shop by Category",
     "exploreProducts": "Explore Products",
     "heroCta": "Shop Now",
+    "expressBadge": "Express Service",
+    "trustFast": "Fast Processing",
+    "trustFastDesc": "Orders reviewed and dispatched quickly",
     "trustCod": "Cash on Delivery",
     "trustCodDesc": "Pay when your order arrives at your door",
+    "trustPickup": "Store Pickup",
+    "trustPickupDesc": "Collect your order, no delivery wait",
     "trustSecure": "Secure Checkout",
     "trustSecureDesc": "Your account and orders, protected",
     "trustSupport": "Real Support",
@@ -61,7 +66,11 @@
     "category": "Category",
     "quantityInCart": "In your cart: {count}",
     "addedToCart": "Added to cart",
-    "shareTrust": "Cash on Delivery available on this item"
+    "shareTrust": "Cash on Delivery available on this item",
+    "shareTrustPickup": "Ready for store pickup",
+    "availableOptions": "Available Options",
+    "optionFallback": "Option",
+    "optionsNote": "Options shown for reference — contact us to request a specific one."
   },
   "listing": {
     "title": "All Products",
@@ -88,7 +97,22 @@
     "fullNamePlaceholder": "Your full name",
     "emailPlaceholder": "you@example.com",
     "phonePlaceholder": "01XXXXXXXXX",
-    "passwordPlaceholder": "At least 8 characters"
+    "passwordPlaceholder": "At least 8 characters",
+    "forgotLink": "Forgot password?",
+    "forgotTitle": "Reset Your Password",
+    "forgotSubtitle": "Enter your email and we'll send you a reset link",
+    "submitForgot": "Send Reset Link",
+    "forgotSent": "If that email matches an account, a reset link has been sent to it.",
+    "backToLogin": "Back to log in",
+    "resetTitle": "Choose a New Password",
+    "resetSubtitle": "Enter a new password for your account",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "submitReset": "Reset Password",
+    "resetSuccess": "Password reset. Please log in with your new password.",
+    "resetMissingToken": "This reset link is invalid or has expired.",
+    "requestNewLink": "Request a new link",
+    "passwordMismatch": "Passwords do not match."
   },
   "cart": {
     "title": "Your Cart",
@@ -117,6 +141,8 @@
     "paymentMethod": "Payment Method",
     "codTitle": "Cash on Delivery",
     "codDescription": "Pay in cash when your order is delivered. No online payment is required today.",
+    "pickupTitle": "Store Pickup",
+    "pickupDescription": "This order will be ready for pickup — no delivery fee applies.",
     "placeOrder": "Place Order",
     "placingOrder": "Placing Order...",
     "stockError": "\"{product}\" only has {count} left in stock.",
@@ -135,6 +161,7 @@
     "items": "Items",
     "shippingTo": "Shipping To",
     "loadError": "We couldn't load your orders right now. Please refresh or try again shortly.",
+    "tracking": "Order Tracking",
     "status": {
       "PendingPayment": "Pending Payment",
       "Processing": "Processing",
@@ -167,7 +194,8 @@
     "quickLinks": "Quick Links",
     "contact": "Contact Us",
     "rightsReserved": "All rights reserved.",
-    "codBadge": "Cash on Delivery Available Nationwide"
+    "codBadge": "Cash on Delivery Available Nationwide",
+    "pickupBadge": "Ready for Store Pickup"
   },
   "notFound": {
     "title": "Page Not Found",

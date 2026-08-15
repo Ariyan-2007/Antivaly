@@ -25,3 +25,15 @@ export function formatDate(iso: string | null | undefined, locale: string): stri
     day: "numeric",
   }).format(date);
 }
+
+export function formatDateTime(iso: string | null | undefined, locale: string): string {
+  const date = iso ? new Date(iso) : null;
+  if (!date || Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat(locale === "bn" ? "bn-BD" : "en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+}
