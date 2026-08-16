@@ -16,20 +16,18 @@ import { Link } from "@/i18n/navigation";
 import { useCartStore } from "@/store/cart-store";
 import { CartLineItem } from "@/components/cart/cart-line-item";
 import { formatMoney } from "@/lib/format";
-import { useAuth } from "@/components/providers/auth-provider";
 
 export function CartButton({ currency }: { currency: string }) {
   const tNav = useTranslations("nav");
   const tCart = useTranslations("cart");
   const tCommon = useTranslations("common");
   const locale = useLocale();
-  const user = useAuth();
   const [open, setOpen] = useState(false);
   const { cart, itemCount, hasLoaded, fetchCart } = useCartStore();
 
   useEffect(() => {
-    if (user && !hasLoaded) fetchCart();
-  }, [user, hasLoaded, fetchCart]);
+    if (!hasLoaded) fetchCart();
+  }, [hasLoaded, fetchCart]);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -50,18 +48,7 @@ export function CartButton({ currency }: { currency: string }) {
           <SheetTitle>{tCart("title")}</SheetTitle>
         </SheetHeader>
 
-        {!user ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
-            <p className="text-sm text-muted-foreground">{tCart("signInDesc")}</p>
-            <Button
-              render={
-                <Link href="/login" onClick={() => setOpen(false)}>
-                  {tNav("login")}
-                </Link>
-              }
-            />
-          </div>
-        ) : !cart || cart.items.length === 0 ? (
+        {!cart || cart.items.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
             <ShoppingCart className="size-10 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">{tCart("emptyTitle")}</p>
@@ -77,7 +64,11 @@ export function CartButton({ currency }: { currency: string }) {
           <>
             <div className="flex-1 overflow-y-auto px-4">
               {cart.items.map((item) => (
-                <CartLineItem key={item.productId} item={item} currency={currency} />
+                <CartLineItem
+                  key={`${item.productId}-${item.variantId ?? ""}`}
+                  item={item}
+                  currency={currency}
+                />
               ))}
             </div>
             <SheetFooter className="gap-3 border-t border-border pt-4">

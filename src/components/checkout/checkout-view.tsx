@@ -8,13 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { useCartStore } from "@/store/cart-store";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
 
-export function CheckoutView({
-  currency,
-  deliveryModuleEnabled,
-}: {
-  currency: string;
-  deliveryModuleEnabled: boolean;
-}) {
+export function CheckoutView({ currency }: { currency: string }) {
   const t = useTranslations("cart");
   const { cart, hasLoaded, isLoading, fetchCart } = useCartStore();
 
@@ -40,7 +34,5 @@ export function CheckoutView({
     );
   }
 
-  return (
-    <CheckoutForm cart={cart} currency={currency} deliveryModuleEnabled={deliveryModuleEnabled} />
-  );
+  return <CheckoutForm cart={cart} currency={currency} />;
 }

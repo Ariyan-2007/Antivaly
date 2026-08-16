@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { HeroBanner } from "@/components/shop/hero-banner";
 import { ProductGrid } from "@/components/shop/product-grid";
 import { Button } from "@/components/ui/button";
-import { getBusiness, getCategories, getProducts } from "@/lib/api/catalog";
+import { getBusiness, getCategories, getProducts, getBanners } from "@/lib/api/catalog";
 import { API_BASE_URL, BUSINESS_SLUG } from "@/lib/constants";
 import { categoryHref } from "@/lib/routes";
 
@@ -47,15 +47,18 @@ export default async function HomePage({
   // a category-fetch failure just means no category rows; one bad category's products
   // failing doesn't hide every other category's products.
   const categories = await getCategories().catch(() => []);
+  const banners = await getBanners().catch(() => []);
   const activeCategories = categories
     .filter((c) => c.isActive)
     .sort((a, b) => a.sortOrder - b.sortOrder);
 
   const categoryProductsSettled = await Promise.allSettled(
-    activeCategories.map((category) => getProducts({ categoryId: category.id }))
+    activeCategories.map((category) =>
+      getProducts({ categoryId: category.id, pageSize: PRODUCTS_PER_CATEGORY })
+    )
   );
   const categoryProducts = categoryProductsSettled.map((r) =>
-    r.status === "fulfilled" ? r.value : []
+    r.status === "fulfilled" ? r.value.items : []
   );
 
   const businessName = business.name || "Antivaly";
@@ -73,7 +76,7 @@ export default async function HomePage({
     <div className="mx-auto flex max-w-7xl flex-col gap-10 px-4 py-6">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <HeroBanner business={business} />
+      <HeroBanner business={business} banners={banners} />
 
       {activeCategories.length === 0 ? (
         <p className="py-16 text-center text-sm text-muted-foreground">{t("noProducts")}</p>

@@ -4,20 +4,24 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { OrderCard } from "@/components/orders/order-card";
+import { PaginationControls } from "@/components/shop/pagination-controls";
 import { getServerSession } from "@/lib/auth/session";
 import { serverAuthedFetch } from "@/lib/auth/authed-fetch";
 import { getBusiness } from "@/lib/api/catalog";
 import { DEFAULT_CURRENCY } from "@/lib/constants";
-import type { OrderResponse } from "@/types/api";
+import type { OrderResponse, PagedResult } from "@/types/api";
 
 export const metadata: Metadata = { title: "My Orders", robots: { index: false } };
 
 export default async function OrdersPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   const { locale } = await params;
+  const { page: pageRaw } = await searchParams;
   setRequestLocale(locale);
   const t = await getTranslations("orders");
   const session = await getServerSession();
@@ -25,11 +29,12 @@ export default async function OrdersPage({
     redirect(`/${locale}/login?redirect=${encodeURIComponent(`/${locale}/orders`)}`);
   }
 
+  const page = Math.max(1, Number(pageRaw) || 1);
   const [business, result] = await Promise.all([
     getBusiness(),
-    serverAuthedFetch<OrderResponse[]>("/api/shop/orders"),
+    serverAuthedFetch<PagedResult<OrderResponse>>(`/api/shop/orders?page=${page}&pageSize=10`),
   ]);
-  const orders = result.data ?? [];
+  const orders = result.data?.items ?? [];
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -44,10 +49,20 @@ export default async function OrdersPage({
           <Button render={<Link href="/products">{t("emptyCta")}</Link>} />
         </div>
       ) : (
-        <div className="flex flex-col gap-4">
-          {orders.map((order) => (
-            <OrderCard key={order.id} order={order} currency={business.currency || DEFAULT_CURRENCY} />
-          ))}
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
+            {orders.map((order) => (
+              <OrderCard key={order.id} order={order} currency={business.currency || DEFAULT_CURRENCY} />
+            ))}
+          </div>
+          {result.data && (
+            <PaginationControls
+              page={result.data.page}
+              totalPages={result.data.totalPages}
+              hasNextPage={result.data.hasNextPage}
+              hasPreviousPage={result.data.hasPreviousPage}
+            />
+          )}
         </div>
       )}
     </div>

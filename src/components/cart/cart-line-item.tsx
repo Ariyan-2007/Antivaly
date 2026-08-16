@@ -19,8 +19,8 @@ export function CartLineItem({ item, currency }: { item: CartItem; currency: str
   function change(next: number) {
     startTransition(async () => {
       try {
-        if (next <= 0) await removeItem(item.productId);
-        else await updateItem(item.productId, next);
+        if (next <= 0) await removeItem(item.productId, item.variantId);
+        else await updateItem(item.productId, next, item.variantId);
       } catch (err) {
         toast.error(err instanceof ApiError ? err.message : t("errorGeneric"));
       }
@@ -33,6 +33,9 @@ export function CartLineItem({ item, currency }: { item: CartItem; currency: str
         <p className="truncate text-sm font-medium text-foreground">
           {item.productName || t("unnamedItem")}
         </p>
+        {item.variantSummary && (
+          <p className="text-xs text-muted-foreground">{item.variantSummary}</p>
+        )}
         <p className="text-xs text-muted-foreground">{formatMoney(item.unitPrice, currency, locale)}</p>
       </div>
       <div className="flex items-center rounded-lg border border-border">

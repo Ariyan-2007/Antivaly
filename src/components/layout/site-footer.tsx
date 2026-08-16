@@ -2,14 +2,16 @@ import { Truck, Store, Mail, Phone } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { categoryHref } from "@/lib/routes";
-import type { BusinessResponse, CategoryResponse } from "@/types/api";
+import type { BusinessResponse, CategoryResponse, ContentBlockResponse } from "@/types/api";
 
 export function SiteFooter({
   business,
   categories,
+  pages = [],
 }: {
   business: BusinessResponse;
   categories: CategoryResponse[];
+  pages?: ContentBlockResponse[];
 }) {
   const t = useTranslations("footer");
   const tNav = useTranslations("nav");
@@ -17,7 +19,7 @@ export function SiteFooter({
   return (
     <footer className="relative mt-16 border-t border-border bg-card pb-20 md:pb-0">
       <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/40 to-transparent" />
-      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:grid sm:grid-cols-3">
+      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:grid sm:grid-cols-2 lg:grid-cols-4">
         <div className="flex flex-col gap-2">
           <h3 className="font-heading text-lg font-bold text-foreground">{business.name}</h3>
           {business.description && (
@@ -52,6 +54,22 @@ export function SiteFooter({
               {category.name}
             </Link>
           ))}
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <h4 className="text-sm font-semibold text-foreground">{t("help")}</h4>
+          {pages.map((page) => (
+            <Link
+              key={page.id}
+              href={`/pages/${page.slug || page.id}` as never}
+              className="text-sm text-muted-foreground hover:text-primary"
+            >
+              {page.title}
+            </Link>
+          ))}
+          <Link href="/track-order" className="text-sm text-muted-foreground hover:text-primary">
+            {tNav("trackOrder")}
+          </Link>
         </div>
 
         <div className="flex flex-col gap-2">

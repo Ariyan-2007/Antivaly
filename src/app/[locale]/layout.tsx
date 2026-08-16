@@ -5,11 +5,12 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { BusinessProvider } from "@/components/providers/business-provider";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { routing } from "@/i18n/routing";
-import { getBusiness, getCategories } from "@/lib/api/catalog";
+import { getBusiness, getCategories, getMenu, getPages } from "@/lib/api/catalog";
 import { ApiError } from "@/lib/api/client";
 import { isValidHexColor, contrastForeground } from "@/lib/color";
 import "../globals.css";
@@ -76,9 +77,13 @@ export default async function LocaleLayout({
     throw err;
   }
 
-  // Categories are non-critical to the shell (nav still works via direct links) — a failure
-  // here shouldn't take down the whole site the way a missing Business would.
-  const categories = await getCategories().catch(() => []);
+  // Categories/menu/pages are non-critical to the shell (nav still works via direct links) —
+  // a failure here shouldn't take down the whole site the way a missing Business would.
+  const [categories, menu, pages] = await Promise.all([
+    getCategories().catch(() => []),
+    getMenu().catch(() => []),
+    getPages().catch(() => []),
+  ]);
 
   const brand = isValidHexColor(business.themeColor) ? business.themeColor : undefined;
   const brandStyle = brand
@@ -94,13 +99,15 @@ export default async function LocaleLayout({
     >
       <body className="flex min-h-full flex-col">
         <NextIntlClientProvider>
-          <AuthProvider>
-            <SiteHeader business={business} categories={categories} />
-            <main className="flex-1 pb-16 md:pb-0">{children}</main>
-            <SiteFooter business={business} categories={categories} />
-            <MobileBottomNav />
-            <Toaster position="top-center" richColors />
-          </AuthProvider>
+          <BusinessProvider business={business}>
+            <AuthProvider>
+              <SiteHeader business={business} categories={categories} menu={menu} />
+              <main className="flex-1 pb-16 md:pb-0">{children}</main>
+              <SiteFooter business={business} categories={categories} pages={pages} />
+              <MobileBottomNav />
+              <Toaster position="top-center" richColors />
+            </AuthProvider>
+          </BusinessProvider>
         </NextIntlClientProvider>
       </body>
     </html>

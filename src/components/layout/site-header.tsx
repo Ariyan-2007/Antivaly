@@ -11,7 +11,8 @@ import { CategoryChips } from "@/components/shop/category-chips";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DEFAULT_CURRENCY } from "@/lib/constants";
 import { isValidImageUrl } from "@/lib/image";
-import type { BusinessResponse, CategoryResponse } from "@/types/api";
+import { cn } from "@/lib/utils";
+import type { BusinessResponse, CategoryResponse, MenuNode } from "@/types/api";
 
 function SearchBarFallback() {
   return <Skeleton className="h-8 w-full rounded-lg" />;
@@ -20,9 +21,11 @@ function SearchBarFallback() {
 export async function SiteHeader({
   business,
   categories,
+  menu = [],
 }: {
   business: BusinessResponse;
   categories: CategoryResponse[];
+  menu?: MenuNode[];
 }) {
   const businessName = business.name || "Antivaly";
   const logoUrl = isValidImageUrl(business.logoUrl) ? business.logoUrl : null;
@@ -91,8 +94,21 @@ export async function SiteHeader({
       </div>
 
       <nav className="hidden border-t border-border/60 px-4 py-2.5 md:block">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto flex max-w-7xl items-center gap-4">
           <CategoryChips categories={categories} />
+          {menu.length > 0 && (
+            <div className={cn("flex shrink-0 items-center gap-4 border-l border-border/60 pl-4")}>
+              {menu.map((item) => (
+                <Link
+                  key={item.id}
+                  href={(item.linkUrl || "#") as never}
+                  className="whitespace-nowrap text-sm font-medium text-muted-foreground hover:text-primary"
+                >
+                  {item.title}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </nav>
     </header>

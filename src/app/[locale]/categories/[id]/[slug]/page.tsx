@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { ProductListing } from "@/components/shop/product-listing";
-import { getBusiness, getCategories, getProducts } from "@/lib/api/catalog";
+import { getBusiness, getCategories, getProducts, getProductFacets } from "@/lib/api/catalog";
 import { DEFAULT_CURRENCY } from "@/lib/constants";
+import { parseCatalogSearchParams, type RawSearchParams } from "@/lib/shop/catalog-query";
 
 type Props = {
   params: Promise<{ locale: string; id: string; slug: string }>;
+  searchParams: Promise<RawSearchParams>;
 };
 
 async function findCategory(id: string) {
@@ -42,8 +44,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function CategoryPage({ params }: Props) {
+export default async function CategoryPage({ params, searchParams }: Props) {
   const { locale, id } = await params;
+  const rawSearchParams = await searchParams;
   setRequestLocale(locale);
 
   const [business, categories, category] = await Promise.all([
@@ -54,12 +57,18 @@ export default async function CategoryPage({ params }: Props) {
 
   if (!category) notFound();
 
-  const products = await getProducts({ categoryId: id }).catch(() => []);
+  const query = { ...parseCatalogSearchParams(rawSearchParams), categoryId: id };
+  const [page, facets] = await Promise.all([
+    getProducts(query),
+    getProductFacets(query),
+  ]);
 
   return (
     <ProductListing
       title={category.name || ""}
-      products={products}
+      page={page}
+      facets={facets}
+      sort={query.sort ?? "Relevance"}
       categories={categories}
       activeCategoryId={id}
       currency={business.currency || DEFAULT_CURRENCY}

@@ -64,6 +64,8 @@ export function AccountMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem render={<Link href="/account">{t("account")}</Link>} />
         <DropdownMenuItem render={<Link href="/orders">{t("orders")}</Link>} />
+        <DropdownMenuItem render={<Link href="/account/wishlist">{t("wishlist")}</Link>} />
+        <DropdownMenuItem render={<Link href="/account/returns">{t("returns")}</Link>} />
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} disabled={isPending} variant="destructive">
           {t("logout")}

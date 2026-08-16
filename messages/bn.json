@@ -10,7 +10,10 @@
     "register": "সাইন আপ",
     "logout": "লগ আউট",
     "searchPlaceholder": "পণ্য খুঁজুন...",
-    "search": "অনুসন্ধান"
+    "search": "অনুসন্ধান",
+    "wishlist": "উইশলিস্ট",
+    "returns": "রিটার্ন",
+    "trackOrder": "অর্ডার ট্র্যাক করুন"
   },
   "common": {
     "addToCart": "কার্টে যোগ করুন",
@@ -40,7 +43,10 @@
     "empty": "এখানে এখনো কিছু নেই",
     "unnamedItem": "পণ্য",
     "signInToContinue": "চালিয়ে যেতে সাইন ইন করুন",
-    "currencyBDT": "৳"
+    "currencyBDT": "৳",
+    "pagination": "পেজিনেশন",
+    "viewOptions": "অপশন দেখুন",
+    "tax": "কর"
   },
   "home": {
     "shopByCategory": "ক্যাটাগরি অনুযায়ী কেনাকাটা",
@@ -70,14 +76,36 @@
     "shareTrustPickup": "স্টোর পিকআপের জন্য প্রস্তুত",
     "availableOptions": "উপলব্ধ অপশন",
     "optionFallback": "অপশন",
-    "optionsNote": "অপশনগুলো শুধু তথ্যের জন্য দেখানো হয়েছে — নির্দিষ্ট একটি চাইলে আমাদের সাথে যোগাযোগ করুন।"
+    "optionsNote": "অপশনগুলো শুধু তথ্যের জন্য দেখানো হয়েছে — নির্দিষ্ট একটি চাইলে আমাদের সাথে যোগাযোগ করুন।",
+    "selectOption": "একটি অপশন নির্বাচন করুন",
+    "selectOptionFirst": "অনুগ্রহ করে প্রথমে একটি অপশন নির্বাচন করুন",
+    "optionOutOfStock": "স্টক নেই",
+    "reviewCountShort": "({count}টি রিভিউ)",
+    "alsoBought": "একসাথে কেনা হয় এমন পণ্য"
   },
   "listing": {
     "title": "সকল পণ্য",
     "searchResultsFor": "\"{query}\" এর জন্য অনুসন্ধান ফলাফল",
     "noResults": "আপনার অনুসন্ধানের সাথে মিলে এমন কোনো পণ্য পাওয়া যায়নি।",
     "clearFilters": "ফিল্টার মুছুন",
-    "resultsCount": "{count}টি পণ্য"
+    "resultsCount": "{count}টি পণ্য",
+    "sortLabel": "সাজান",
+    "sort": {
+      "Relevance": "প্রাসঙ্গিকতা",
+      "Newest": "নতুন",
+      "PriceAscending": "দাম: কম থেকে বেশি",
+      "PriceDescending": "দাম: বেশি থেকে কম",
+      "TopRated": "সেরা রেটেড",
+      "BestSelling": "সর্বাধিক বিক্রিত",
+      "NameAscending": "নাম: ক-য থেকে"
+    },
+    "priceRange": "মূল্য পরিসীমা",
+    "applyPrice": "যান",
+    "inStockOnly": "শুধু স্টকে আছে",
+    "minRating": "রেটিং",
+    "andUp": "ও তার বেশি",
+    "brand": "ব্র্যান্ড",
+    "tags": "ট্যাগ"
   },
   "auth": {
     "loginTitle": "ফিরে আসার জন্য ধন্যবাদ",
@@ -122,7 +150,10 @@
     "clearCart": "কার্ট খালি করুন",
     "proceedToCheckout": "চেকআউট করুন",
     "signInTitle": "কার্ট দেখতে সাইন ইন করুন",
-    "signInDesc": "Antivaly আপনার কার্ট অ্যাকাউন্টে সংরক্ষণ করে রাখে, তাই পণ্য যোগ করতে লগ ইন বা অ্যাকাউন্ট তৈরি করুন।"
+    "signInDesc": "Antivaly আপনার কার্ট অ্যাকাউন্টে সংরক্ষণ করে রাখে, তাই পণ্য যোগ করতে লগ ইন বা অ্যাকাউন্ট তৈরি করুন।",
+    "estimatedTotal": "আনুমানিক সর্বমোট",
+    "shippingTaxNote": "শিপিং এবং কর চেকআউটে গণনা করা হবে।",
+    "promotionPlaceholder": "প্রমোশন কোড"
   },
   "checkout": {
     "title": "চেকআউট",
@@ -146,7 +177,28 @@
     "placeOrder": "অর্ডার করুন",
     "placingOrder": "অর্ডার করা হচ্ছে...",
     "stockError": "\"{product}\" এর স্টকে মাত্র {count}টি বাকি আছে।",
-    "outOfStockError": "এই পণ্যটি অনুরোধকৃত পরিমাণে আর পাওয়া যাচ্ছে না।"
+    "outOfStockError": "এই পণ্যটি অনুরোধকৃত পরিমাণে আর পাওয়া যাচ্ছে না।",
+    "guestDetails": "আপনার তথ্য",
+    "guestName": "পূর্ণ নাম",
+    "guestEmail": "ইমেইল",
+    "guestPhone": "ফোন",
+    "guestEmailRequired": "গেস্ট হিসেবে চেকআউট করতে ইমেইল আবশ্যক।",
+    "signInRequired": "এই দোকানে চেকআউট করতে অ্যাকাউন্ট প্রয়োজন।",
+    "signInToCheckout": "চেকআউট করতে সাইন ইন করুন",
+    "fulfillmentMethod": "ডেলিভারি পদ্ধতি",
+    "deliveryOption": "ডেলিভারি",
+    "pickupOption": "স্টোর পিকআপ",
+    "shippingMethod": "শিপিং পদ্ধতি",
+    "estimatedDays": "{min}-{max} দিন",
+    "useStoreCredit": "স্টোর ক্রেডিট ব্যবহার করুন",
+    "available": "উপলব্ধ",
+    "giftCardCodes": "গিফট কার্ড কোড (ঐচ্ছিক)",
+    "giftCardCodesPlaceholder": "কমা দিয়ে আলাদা করা কোড",
+    "customerNote": "অর্ডার নোট (ঐচ্ছিক)",
+    "taxIncluded": "অন্তর্ভুক্ত",
+    "giftCardApplied": "গিফট কার্ড",
+    "amountDue": "পরিশোধযোগ্য",
+    "enterAddressForTotal": "শিপিং এবং কর দেখতে আপনার ঠিকানা লিখুন।"
   },
   "orders": {
     "title": "আমার অর্ডার",
@@ -176,7 +228,16 @@
       "Paid": "পরিশোধিত",
       "Failed": "পেমেন্ট ব্যর্থ",
       "Refunded": "ফেরত দেওয়া হয়েছে"
-    }
+    },
+    "returnedQuantity": "{count}টি ফেরত দেওয়া হয়েছে",
+    "taxIncludedShort": "অন্তর্ভুক্ত",
+    "giftCardUsed": "গিফট কার্ড ••{suffix}",
+    "storeCreditApplied": "স্টোর ক্রেডিট",
+    "amountDue": "পরিশোধযোগ্য",
+    "refundedAmount": "ফেরত দেওয়া হয়েছে",
+    "trackingNumber": "ট্র্যাকিং নম্বর",
+    "trackShipment": "শিপমেন্ট ট্র্যাক করুন",
+    "returnItems": "পণ্য ফেরত দিন"
   },
   "account": {
     "title": "অ্যাকাউন্ট",
@@ -187,7 +248,38 @@
     "saveChanges": "পরিবর্তন সংরক্ষণ করুন",
     "saved": "প্রোফাইল হালনাগাদ হয়েছে",
     "myOrders": "আমার অর্ডার",
-    "logout": "লগ আউট"
+    "logout": "লগ আউট",
+    "myWishlist": "আমার উইশলিস্ট",
+    "myReturns": "আমার রিটার্ন",
+    "storeCreditTitle": "স্টোর ক্রেডিট",
+    "giftCardTitle": "গিফট কার্ড ব্যালেন্স",
+    "giftCardCodePlaceholder": "গিফট কার্ড কোড",
+    "checkBalance": "ব্যালেন্স দেখুন",
+    "giftCardBalance": "অবশিষ্ট ব্যালেন্স: {amount}",
+    "notificationsTitle": "নোটিফিকেশন পছন্দসমূহ",
+    "notifications": {
+      "marketingEmail": "মার্কেটিং ইমেইল",
+      "backInStockAlerts": "স্টকে ফেরত আসার সতর্কতা",
+      "reviewRequests": "রিভিউ অনুরোধ ইমেইল",
+      "marketingSms": "মার্কেটিং এসএমএস"
+    },
+    "dataTitle": "আপনার ডেটা",
+    "dataDescription": "আমরা আপনার সম্পর্কে যে ব্যক্তিগত তথ্য সংরক্ষণ করি তার একটি কপি ডাউনলোড করুন।",
+    "exportData": "আমার ডেটা এক্সপোর্ট করুন",
+    "dangerZone": "ঝুঁকিপূর্ণ অঞ্চল",
+    "deleteAccount": "অ্যাকাউন্ট মুছে ফেলুন",
+    "deleteAccountTitle": "আপনার অ্যাকাউন্ট মুছে ফেলবেন?",
+    "deleteAccountDescription": "এটি অপরিবর্তনীয়। আপনার ব্যক্তিগত তথ্য নামহীন করে দেওয়া হবে — বিক্রেতার আইনি রেকর্ড রাখার জন্য আপনার পুরনো অর্ডারগুলো থেকে যাবে, তবে আপনার নাম ও যোগাযোগের তথ্য ছাড়া।",
+    "deleteAccountConfirmLabel": "নিশ্চিত করতে {word} লিখুন",
+    "deleteAccountConfirm": "স্থায়ীভাবে আমার অ্যাকাউন্ট মুছে ফেলুন",
+    "deleteAccountWarning": "অ্যাকাউন্ট মুছে ফেললে আপনার তথ্য নামহীন হয়ে যাবে। এটি পূর্বাবস্থায় ফেরানো যাবে না।",
+    "storeCreditReasons": {
+      "GiftCardRedemption": "গিফট কার্ড ব্যবহার করা হয়েছে",
+      "RefundToCredit": "ক্রেডিটে ফেরত",
+      "LoyaltyReward": "লয়্যালটি পুরস্কার",
+      "ManualAdjustment": "ম্যানুয়াল সমন্বয়",
+      "Spent": "অর্ডারে খরচ হয়েছে"
+    }
   },
   "footer": {
     "aboutTitle": "Antivaly সম্পর্কে",
@@ -195,7 +287,8 @@
     "contact": "যোগাযোগ করুন",
     "rightsReserved": "সর্বস্বত্ব সংরক্ষিত।",
     "codBadge": "সারাদেশে ক্যাশ অন ডেলিভারি সুবিধা",
-    "pickupBadge": "স্টোর পিকআপের জন্য প্রস্তুত"
+    "pickupBadge": "স্টোর পিকআপের জন্য প্রস্তুত",
+    "help": "সহায়তা"
   },
   "notFound": {
     "title": "পৃষ্ঠাটি পাওয়া যায়নি",
@@ -207,5 +300,86 @@
     "description": "এই পৃষ্ঠাটি লোড করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।",
     "retry": "আবার চেষ্টা করুন",
     "goHome": "হোমে যান"
+  },
+  "reviews": {
+    "title": "কাস্টমার রিভিউ",
+    "reviewCount": "{count}টি রিভিউর ভিত্তিতে",
+    "helpful": "সহায়ক",
+    "verifiedPurchase": "যাচাইকৃত ক্রয়",
+    "anonymous": "নামহীন",
+    "merchantReply": "বিক্রেতার উত্তর",
+    "noReviews": "এখনো কোনো রিভিউ নেই। প্রথম রিভিউ আপনিই দিন।",
+    "signInToReview": "রিভিউ লিখতে সাইন ইন করুন",
+    "submittedPendingModeration": "ধন্যবাদ! আপনার রিভিউ জমা হয়েছে এবং অনুমোদনের অপেক্ষায় আছে।",
+    "writeReview": "রিভিউ লিখুন",
+    "reviewTitle": "শিরোনাম",
+    "reviewBody": "আপনার মতামত",
+    "submitReview": "রিভিউ জমা দিন"
+  },
+  "returns": {
+    "myReturns": "আমার রিটার্ন",
+    "noReturns": "আপনি এখনো কোনো রিটার্নের অনুরোধ করেননি।",
+    "loadError": "আপনার রিটার্ন এই মুহূর্তে লোড করা যায়নি। রিফ্রেশ করুন বা কিছুক্ষণ পর আবার চেষ্টা করুন।",
+    "startReturn": "পণ্য ফেরত দিন",
+    "selectItems": "ফেরত দেওয়ার জন্য পণ্য নির্বাচন করুন",
+    "selectAtLeastOne": "ফেরত দিতে অন্তত একটি পণ্য নির্বাচন করুন।",
+    "reason": "কারণ",
+    "reasonNote": "অতিরিক্ত বিবরণ",
+    "resolution": "পছন্দের সমাধান",
+    "submitRequest": "রিটার্ন অনুরোধ জমা দিন",
+    "requestSubmitted": "আপনার রিটার্ন অনুরোধ জমা হয়েছে।",
+    "cancelRequest": "অনুরোধ বাতিল করুন",
+    "cancelled": "রিটার্ন অনুরোধ বাতিল করা হয়েছে।",
+    "rmaNumber": "রিটার্ন #{number}",
+    "forOrder": "অর্ডার #{number} এর জন্য",
+    "reasons": {
+      "Damaged": "পণ্যটি ক্ষতিগ্রস্ত অবস্থায় পৌঁছেছে",
+      "WrongItem": "ভুল পণ্য পেয়েছি",
+      "NotAsDescribed": "বিবরণের সাথে মেলেনি",
+      "ChangedMind": "মত পরিবর্তন করেছি",
+      "SizeOrFit": "সাইজ বা ফিট সমস্যা",
+      "Other": "অন্যান্য"
+    },
+    "resolutions": {
+      "Refund": "রিফান্ড",
+      "Exchange": "বিনিময়",
+      "StoreCredit": "স্টোর ক্রেডিট"
+    },
+    "status": {
+      "Requested": "অনুরোধ করা হয়েছে",
+      "Approved": "অনুমোদিত",
+      "Rejected": "প্রত্যাখ্যাত",
+      "Received": "গৃহীত",
+      "Refunded": "ফেরত দেওয়া হয়েছে",
+      "Cancelled": "বাতিল"
+    }
+  },
+  "trackOrder": {
+    "title": "আপনার অর্ডার ট্র্যাক করুন",
+    "description": "আপনার অর্ডার নম্বর এবং চেকআউটে ব্যবহৃত ইমেইল দিন।",
+    "orderNumber": "অর্ডার নম্বর",
+    "email": "ইমেইল",
+    "submit": "অর্ডার ট্র্যাক করুন",
+    "notFound": "এই তথ্যের সাথে মিলে এমন কোনো অর্ডার পাওয়া যায়নি।"
+  },
+  "wishlist": {
+    "title": "আমার উইশলিস্ট",
+    "empty": "আপনার উইশলিস্ট খালি।",
+    "loadError": "আপনার উইশলিস্ট এই মুহূর্তে লোড করা যায়নি। রিফ্রেশ করুন বা কিছুক্ষণ পর আবার চেষ্টা করুন।",
+    "remove": "উইশলিস্ট থেকে সরান",
+    "add": "সংরক্ষণ করুন",
+    "saved": "সংরক্ষিত",
+    "backInStockAlertSet": "স্টকে ফিরে এলে আমরা আপনাকে ইমেইল করব।",
+    "backInStockAlertActive": "স্টকে ফিরে এলে আমরা আপনাকে জানাব",
+    "errorGeneric": "কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।"
+  },
+  "verifyEmail": {
+    "title": "ইমেইল যাচাইকরণ",
+    "verifying": "আপনার ইমেইল যাচাই করা হচ্ছে...",
+    "success": "আপনার ইমেইল যাচাই করা হয়েছে।",
+    "continueToLogin": "লগইনে যান",
+    "missingToken": "এই যাচাইকরণ লিঙ্কে টোকেন নেই।",
+    "failed": "আমরা আপনার ইমেইল যাচাই করতে পারিনি। লিঙ্কটির মেয়াদ শেষ হয়ে থাকতে পারে।",
+    "backHome": "হোমে ফিরুন"
   }
 }

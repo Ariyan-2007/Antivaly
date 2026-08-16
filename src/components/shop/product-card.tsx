@@ -20,7 +20,8 @@ export function ProductCard({
   const t = useTranslations("common");
   const productName = product.name || "";
   const image = firstValidImage(product.images);
-  const isOutOfStock = product.trackInventory && product.stockQuantity <= 0;
+  const hasVariants = (product.variants?.length ?? 0) > 0;
+  const isOutOfStock = !hasVariants && !product.isAvailable;
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-foreground/10">
@@ -74,7 +75,16 @@ export function ProductCard({
         <StockBadge stockQuantity={product.stockQuantity} trackInventory={product.trackInventory} />
 
         <div className="mt-1">
-          <AddToCartButton productId={product.id} disabled={isOutOfStock} variant="compact" />
+          {hasVariants ? (
+            <Link
+              href={productHref(product.id, product.slug)}
+              className="flex h-8 w-full items-center justify-center rounded-lg bg-secondary text-xs font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80"
+            >
+              {t("viewOptions")}
+            </Link>
+          ) : (
+            <AddToCartButton productId={product.id} disabled={isOutOfStock} variant="compact" />
+          )}
         </div>
       </div>
     </div>

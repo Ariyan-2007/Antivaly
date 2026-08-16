@@ -9,12 +9,15 @@ import {
   buildAuthCookies,
 } from "@/lib/auth/cookies";
 import { refreshTokens } from "@/lib/auth/refresh";
+import { CART_TOKEN_HEADER } from "@/lib/cart/guest-token";
 
 type ProxyOptions = {
   method: string;
   /** Path on the Vastora API, e.g. "/api/shop/cart" — never slug-rooted for these calls. */
   upstreamPath: string;
   body?: unknown;
+  /** Extra headers to forward upstream on every attempt (e.g. Idempotency-Key). */
+  extraHeaders?: Record<string, string>;
 };
 
 /**
@@ -28,7 +31,7 @@ type ProxyOptions = {
  * production, which breaks the client's JSON parsing and surfaces as an uncaught exception in
  * the browser. Every branch below resolves to a well-formed NextResponse instead.
  */
-export async function proxyAuthed({ method, upstreamPath, body }: ProxyOptions) {
+export async function proxyAuthed({ method, upstreamPath, body, extraHeaders }: ProxyOptions) {
   try {
     const store = await cookies();
     const accessToken = store.get(ACCESS_COOKIE)?.value;
@@ -38,18 +41,12 @@ export async function proxyAuthed({ method, upstreamPath, body }: ProxyOptions) 
       return unauthorized();
     }
 
-    const callUpstream = async (token: string) => {
-      try {
-        return await fetch(`${API_BASE_URL}${upstreamPath}`, {
-          method,
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: body !== undefined ? JSON.stringify(body) : undefined,
-          cache: "no-store",
-        });
-      } catch {
-        return null;
-      }
-    };
+    const callUpstream = async (token: string) =>
+      forward(upstreamPath, {
+        method,
+        body,
+        headers: { Authorization: `Bearer ${token}`, ...extraHeaders },
+      });
 
     let upstreamRes = accessToken ? await callUpstream(accessToken) : null;
     let rotated: ReturnType<typeof buildAuthCookies> | null = null;
@@ -68,45 +65,104 @@ export async function proxyAuthed({ method, upstreamPath, body }: ProxyOptions) 
       return unreachable ? serviceUnavailable() : unauthorized();
     }
 
-    const status = upstreamRes.status;
-
-    if (status === 204) {
-      const res = new NextResponse(null, { status: 204 });
-      if (rotated) for (const c of rotated) res.cookies.set(c.name, c.value, c.options);
-      return res;
-    }
-
-    let text: string;
-    try {
-      text = await upstreamRes.text();
-    } catch {
-      return serviceUnavailable();
-    }
-
-    let data: unknown = null;
-    if (text) {
-      try {
-        data = JSON.parse(text);
-      } catch {
-        return status >= 200 && status < 300
-          ? serviceUnavailable()
-          : problem(status, "Something went wrong. Please try again.");
-      }
-    }
-
-    const res = NextResponse.json(data, { status });
-
-    if (rotated) {
-      for (const cookie of rotated) res.cookies.set(cookie.name, cookie.value, cookie.options);
-    }
-    if (status === 401) {
+    const res = await toNextResponse(upstreamRes);
+    if (rotated) for (const c of rotated) res.cookies.set(c.name, c.value, c.options);
+    if (upstreamRes.status === 401) {
       for (const name of AUTH_COOKIE_NAMES) res.cookies.delete(name);
     }
-
     return res;
   } catch {
     return serviceUnavailable();
   }
+}
+
+/**
+ * Cart and checkout/preview are "guests welcome, not slug-rooted" (blueprint §6.3/§6.4): a
+ * signed-in Customer's JWT always wins (same refresh-on-401 dance as proxyAuthed), but with no
+ * session at all the call still goes through anonymously, carrying the guest's `X-Cart-Token`
+ * instead of a Bearer token. Never returns 401 for the guest path — these endpoints have no
+ * auth requirement at all when no token is present.
+ */
+export async function proxyCartOrCheckout({
+  method,
+  upstreamPath,
+  body,
+  guestToken,
+  extraHeaders,
+}: ProxyOptions & { guestToken?: string | null }) {
+  try {
+    const store = await cookies();
+    const accessToken = store.get(ACCESS_COOKIE)?.value;
+    const refreshToken = store.get(REFRESH_COOKIE)?.value;
+
+    if (accessToken || refreshToken) {
+      return proxyAuthed({ method, upstreamPath, body, extraHeaders });
+    }
+
+    const headers: Record<string, string> = { ...extraHeaders };
+    if (guestToken) headers[CART_TOKEN_HEADER] = guestToken;
+
+    const upstreamRes = await forward(upstreamPath, { method, body, headers });
+    if (!upstreamRes) return serviceUnavailable();
+    return toNextResponse(upstreamRes);
+  } catch {
+    return serviceUnavailable();
+  }
+}
+
+/** No auth, ever — order lookup, email verification. */
+export async function proxyPublic({ method, upstreamPath, body, extraHeaders }: ProxyOptions) {
+  try {
+    const upstreamRes = await forward(upstreamPath, { method, body, headers: extraHeaders });
+    if (!upstreamRes) return serviceUnavailable();
+    return toNextResponse(upstreamRes);
+  } catch {
+    return serviceUnavailable();
+  }
+}
+
+async function forward(
+  upstreamPath: string,
+  opts: { method: string; body?: unknown; headers?: Record<string, string> }
+): Promise<Response | null> {
+  try {
+    return await fetch(`${API_BASE_URL}${upstreamPath}`, {
+      method: opts.method,
+      headers: { "Content-Type": "application/json", ...opts.headers },
+      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+      cache: "no-store",
+    });
+  } catch {
+    return null;
+  }
+}
+
+async function toNextResponse(upstreamRes: Response): Promise<NextResponse> {
+  const status = upstreamRes.status;
+
+  if (status === 204) {
+    return new NextResponse(null, { status: 204 });
+  }
+
+  let text: string;
+  try {
+    text = await upstreamRes.text();
+  } catch {
+    return serviceUnavailable();
+  }
+
+  let data: unknown = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return status >= 200 && status < 300
+        ? serviceUnavailable()
+        : problem(status, "Something went wrong. Please try again.");
+    }
+  }
+
+  return NextResponse.json(data, { status });
 }
 
 function problem(status: number, title: string) {
