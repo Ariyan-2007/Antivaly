@@ -29,11 +29,11 @@ export function OrderStatusTimeline({
           return (
             <li key={`${event.status}-${event.timestamp}`} className="relative flex gap-3 pb-6 last:pb-0">
               {!isLast && (
-                <span className="absolute left-[9px] top-5 h-full w-px bg-border" aria-hidden />
+                <span className="absolute left-2.25 top-5 h-full w-px bg-border" aria-hidden />
               )}
               <CheckCircle2
                 className={cn(
-                  "mt-0.5 size-[18px] shrink-0",
+                  "mt-0.5 size-4.5 shrink-0",
                   isLast ? "text-primary" : "text-muted-foreground"
                 )}
               />
