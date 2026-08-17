@@ -63,7 +63,18 @@
     "trustSecureDesc": "Your account and orders, protected",
     "trustSupport": "Real Support",
     "trustSupportDesc": "Reach us directly if anything comes up",
-    "noProducts": "No products available yet."
+    "noProducts": "No products available yet.",
+    "browseCategories": "Browse Categories",
+    "newArrivalsTitle": "New Arrivals",
+    "newArrivalsDesc": "The latest additions to the catalog, fresh in.",
+    "categoryKicker": "Category",
+    "dealsEyebrow": "Limited-Time",
+    "dealsTitle": "Today's Deals",
+    "dealsSubtitle": "Real discounts on picks worth grabbing while they last.",
+    "dealsViewAll": "View all deals",
+    "bestSellersEyebrow": "What people are buying",
+    "bestSellersTitle": "Best Sellers",
+    "bestSellersSubtitle": "Ranked by what shoppers are actually ordering."
   },
   "product": {
     "description": "Description",

@@ -3,11 +3,13 @@
 import { useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { isValidImageUrl } from "@/lib/image";
+import { resolveApiImageUrl } from "@/lib/image";
 
 export function ProductGallery({ images, alt }: { images: string[]; alt: string }) {
   const [active, setActive] = useState(0);
-  const validImages = images.filter(isValidImageUrl);
+  const validImages = images
+    .map(resolveApiImageUrl)
+    .filter((url): url is string => !!url);
 
   if (validImages.length === 0) {
     return (

@@ -63,7 +63,18 @@
     "trustSecureDesc": "আপনার অ্যাকাউন্ট ও অর্ডার সুরক্ষিত",
     "trustSupport": "সরাসরি সহায়তা",
     "trustSupportDesc": "যেকোনো প্রয়োজনে সরাসরি যোগাযোগ করুন",
-    "noProducts": "এখনো কোনো পণ্য যোগ করা হয়নি।"
+    "noProducts": "এখনো কোনো পণ্য যোগ করা হয়নি।",
+    "browseCategories": "ক্যাটাগরি ব্রাউজ করুন",
+    "newArrivalsTitle": "নতুন সংযোজন",
+    "newArrivalsDesc": "ক্যাটালগে সদ্য যোগ হওয়া পণ্যসমূহ।",
+    "categoryKicker": "ক্যাটাগরি",
+    "dealsEyebrow": "সীমিত সময়ের জন্য",
+    "dealsTitle": "আজকের ডিল",
+    "dealsSubtitle": "সীমিত সময়ের জন্য আসল ছাড়ে পাওয়া পণ্য।",
+    "dealsViewAll": "সব ডিল দেখুন",
+    "bestSellersEyebrow": "মানুষ যা কিনছে",
+    "bestSellersTitle": "সর্বাধিক বিক্রিত",
+    "bestSellersSubtitle": "ক্রেতাদের প্রকৃত অর্ডার অনুযায়ী র‍্যাংক করা।"
   },
   "product": {
     "description": "বিবরণ",

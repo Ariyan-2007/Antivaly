@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Minus, Plus, ShoppingCart } from "lucide-react";
+import { Loader2, Minus, Plus, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cart-store";
 import { ApiError } from "@/lib/api/client";
@@ -52,7 +52,11 @@ export function AddToCartButton({
         disabled={disabled || isPending}
         onClick={handleAdd}
       >
-        <ShoppingCart className="size-3.5" />
+        {isPending ? (
+          <Loader2 className="size-3.5 animate-spin" />
+        ) : (
+          <ShoppingCart className="size-3.5" />
+        )}
         {isPending ? t("adding") : t("addToCart")}
       </Button>
     );
@@ -82,7 +86,11 @@ export function AddToCartButton({
         </button>
       </div>
       <Button size="lg" className="flex-1 gap-2" disabled={disabled || isPending} onClick={handleAdd}>
-        <ShoppingCart className="size-4" />
+        {isPending ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <ShoppingCart className="size-4" />
+        )}
         {disabled && !variantRequired
           ? t("outOfStock")
           : variantRequired

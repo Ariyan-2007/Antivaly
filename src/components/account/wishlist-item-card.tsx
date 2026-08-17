@@ -4,13 +4,13 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { browserFetch } from "@/lib/api/browser";
 import { ApiError } from "@/lib/api/client";
 import { productHref } from "@/lib/routes";
 import { formatMoney } from "@/lib/format";
-import { isValidImageUrl } from "@/lib/image";
+import { resolveApiImageUrl } from "@/lib/image";
 import type { WishlistItemResponse } from "@/types/api";
 
 export function WishlistItemCard({ item, currency }: { item: WishlistItemResponse; currency: string }) {
@@ -19,6 +19,7 @@ export function WishlistItemCard({ item, currency }: { item: WishlistItemRespons
   const locale = useLocale();
   const [removed, setRemoved] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const imageSrc = resolveApiImageUrl(item.imageUrl);
 
   function handleRemove() {
     startTransition(async () => {
@@ -36,8 +37,8 @@ export function WishlistItemCard({ item, currency }: { item: WishlistItemRespons
   return (
     <div className="flex items-center gap-3 rounded-xl border border-border p-3">
       <Link href={productHref(item.productId, item.slug)} className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-muted">
-        {isValidImageUrl(item.imageUrl) && (
-          <Image src={item.imageUrl} alt={item.productName || ""} fill sizes="64px" className="object-cover" />
+        {imageSrc && (
+          <Image src={imageSrc} alt={item.productName || ""} fill sizes="64px" className="object-cover" />
         )}
       </Link>
       <div className="min-w-0 flex-1">
@@ -56,7 +57,7 @@ export function WishlistItemCard({ item, currency }: { item: WishlistItemRespons
         aria-label={t("remove")}
         className="shrink-0 text-muted-foreground hover:text-destructive disabled:opacity-40"
       >
-        <X className="size-4" />
+        {isPending ? <Loader2 className="size-4 animate-spin" /> : <X className="size-4" />}
       </button>
     </div>
   );

@@ -3,6 +3,7 @@
 import { useState, useTransition, type FormEvent } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { browserFetch } from "@/lib/api/browser";
@@ -44,6 +45,7 @@ export function GiftCardLookup() {
           placeholder={t("giftCardCodePlaceholder")}
         />
         <Button type="submit" variant="outline" disabled={isPending}>
+          {isPending && <Loader2 className="size-4 animate-spin" />}
           {t("checkBalance")}
         </Button>
       </div>

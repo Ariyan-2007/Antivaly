@@ -10,7 +10,7 @@ import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { CategoryChips } from "@/components/shop/category-chips";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DEFAULT_CURRENCY } from "@/lib/constants";
-import { isValidImageUrl } from "@/lib/image";
+import { resolveApiImageUrl } from "@/lib/image";
 import { cn } from "@/lib/utils";
 import { getTopLevelCategories } from "@/lib/shop/category-tree";
 import type { BusinessResponse, CategoryResponse, MenuNode } from "@/types/api";
@@ -29,7 +29,7 @@ export async function SiteHeader({
   menu?: MenuNode[];
 }) {
   const businessName = business.name || "Antivaly";
-  const logoUrl = isValidImageUrl(business.logoUrl) ? business.logoUrl : null;
+  const logoUrl = resolveApiImageUrl(business.logoUrl) ?? null;
   const t = await getTranslations("home");
 
   return (

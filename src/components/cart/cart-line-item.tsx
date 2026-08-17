@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { Minus, Plus, X } from "lucide-react";
+import { Loader2, Minus, Plus, X } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { useCartStore } from "@/store/cart-store";
@@ -69,7 +69,7 @@ export function CartLineItem({ item, currency }: { item: CartItem; currency: str
         disabled={isPending}
         aria-label={t("remove")}
       >
-        <X className="size-4" />
+        {isPending ? <Loader2 className="size-4 animate-spin" /> : <X className="size-4" />}
       </button>
     </div>
   );

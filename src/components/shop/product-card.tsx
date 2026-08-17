@@ -1,9 +1,11 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { Star } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Price } from "@/components/shop/price";
 import { StockBadge } from "@/components/shop/stock-badge";
 import { AddToCartButton } from "@/components/shop/add-to-cart-button";
+import { WishlistButton } from "@/components/shop/wishlist-button";
 import { productHref } from "@/lib/routes";
 import { firstValidImage } from "@/lib/image";
 import type { ProductResponse } from "@/types/api";
@@ -47,6 +49,12 @@ export function ProductCard({
             -{product.discountPercent}%
           </span>
         )}
+        <WishlistButton
+          productId={product.id}
+          outOfStock={isOutOfStock}
+          variant="icon"
+          className="absolute right-2 top-2"
+        />
         {isOutOfStock && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/70">
             <span className="rounded-full bg-foreground px-3 py-1 text-xs font-semibold text-background">
@@ -63,6 +71,14 @@ export function ProductCard({
         >
           {productName}
         </Link>
+
+        {product.reviewCount > 0 && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Star className="size-3 fill-amber-400 text-amber-400" />
+            <span className="font-medium text-foreground">{product.averageRating.toFixed(1)}</span>
+            <span>({product.reviewCount})</span>
+          </div>
+        )}
 
         <Price
           effectivePrice={product.effectivePrice}
