@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { Minus, Plus, X } from "lucide-react";
+import { Loader2, Minus, Plus, X } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { useCartStore } from "@/store/cart-store";
@@ -19,8 +19,8 @@ export function CartLineItem({ item, currency }: { item: CartItem; currency: str
   function change(next: number) {
     startTransition(async () => {
       try {
-        if (next <= 0) await removeItem(item.productId);
-        else await updateItem(item.productId, next);
+        if (next <= 0) await removeItem(item.productId, item.variantId);
+        else await updateItem(item.productId, next, item.variantId);
       } catch (err) {
         toast.error(err instanceof ApiError ? err.message : t("errorGeneric"));
       }
@@ -33,6 +33,9 @@ export function CartLineItem({ item, currency }: { item: CartItem; currency: str
         <p className="truncate text-sm font-medium text-foreground">
           {item.productName || t("unnamedItem")}
         </p>
+        {item.variantSummary && (
+          <p className="text-xs text-muted-foreground">{item.variantSummary}</p>
+        )}
         <p className="text-xs text-muted-foreground">{formatMoney(item.unitPrice, currency, locale)}</p>
       </div>
       <div className="flex items-center rounded-lg border border-border">
@@ -66,7 +69,7 @@ export function CartLineItem({ item, currency }: { item: CartItem; currency: str
         disabled={isPending}
         aria-label={t("remove")}
       >
-        <X className="size-4" />
+        {isPending ? <Loader2 className="size-4 animate-spin" /> : <X className="size-4" />}
       </button>
     </div>
   );

@@ -3,6 +3,7 @@
 import { useState, useTransition, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCartStore } from "@/store/cart-store";
@@ -44,6 +45,7 @@ export function CouponForm() {
           placeholder={t("couponPlaceholder")}
         />
         <Button type="submit" variant="outline" disabled={isPending}>
+          {isPending && <Loader2 className="size-4 animate-spin" />}
           {t("applyCoupon")}
         </Button>
       </div>

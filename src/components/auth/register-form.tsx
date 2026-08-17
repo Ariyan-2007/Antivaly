@@ -13,6 +13,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { browserFetch } from "@/lib/api/browser";
 import { ApiError } from "@/lib/api/client";
 import { useAuthContext } from "@/components/providers/auth-provider";
+import { useCartStore } from "@/store/cart-store";
 import type { UserSummaryResponse } from "@/types/api";
 
 const schema = z.object({
@@ -44,6 +45,7 @@ export function RegisterForm() {
         body: values,
       });
       setUser(user);
+      await useCartStore.getState().mergeGuestCart();
       router.push("/");
     } catch (err) {
       if (err instanceof ApiError) {

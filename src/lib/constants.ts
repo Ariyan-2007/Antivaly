@@ -12,23 +12,10 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://antivaly.c
   ""
 );
 
-/**
- * There is no delivery-zone or distance-based fee calculation on the Vastora backend yet
- * (blueprint §6.4) — `deliveryFee` on checkout is entirely caller-supplied. This is a
- * placeholder flat-rate policy the business should confirm/tune; it is not derived from
- * any backend logic.
- */
-export const DELIVERY_FEE = {
-  insideDhaka: 60,
-  outsideDhaka: 120,
-  /** Cart subtotal (in the business's currency) at or above which delivery is free. */
-  freeThreshold: 2000,
-};
-
-export function computeDeliveryFee(city: string | null | undefined, subtotal: number): number {
-  if (subtotal >= DELIVERY_FEE.freeThreshold) return 0;
-  return /dhaka/i.test((city ?? "").trim()) ? DELIVERY_FEE.insideDhaka : DELIVERY_FEE.outsideDhaka;
-}
-
 /** Products at/under this stock count show a low-stock urgency indicator. */
 export const LOW_STOCK_THRESHOLD = 5;
+
+/** Any page-level `generateMetadata` that sets its own `openGraph` object entirely replaces
+ * (not merges with) the root layout's — so every one of those needs its own image fallback
+ * rather than relying on the layout's or the file-based opengraph-image.png convention. */
+export const DEFAULT_OG_IMAGE = "/opengraph-image.png";

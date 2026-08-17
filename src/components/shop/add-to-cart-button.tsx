@@ -3,43 +3,39 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Minus, Plus, ShoppingCart } from "lucide-react";
+import { Loader2, Minus, Plus, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cart-store";
-import { useAuth } from "@/components/providers/auth-provider";
-import { useRouter, usePathname } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api/client";
 
 export function AddToCartButton({
   productId,
+  variantId,
   disabled,
+  /** true when the product has variants but none is selected yet — guards the click, not just the label. */
+  variantRequired,
   variant = "full",
 }: {
   productId: string;
+  variantId?: string | null;
   disabled?: boolean;
+  variantRequired?: boolean;
   variant?: "full" | "compact";
 }) {
   const t = useTranslations("common");
   const tp = useTranslations("product");
-  const user = useAuth();
-  const router = useRouter();
-  const pathname = usePathname();
   const addItem = useCartStore((s) => s.addItem);
   const [quantity, setQuantity] = useState(1);
   const [isPending, startTransition] = useTransition();
 
-  function goToLogin() {
-    router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
-  }
-
   function handleAdd() {
-    if (!user) {
-      goToLogin();
+    if (variantRequired) {
+      toast.error(tp("selectOptionFirst"));
       return;
     }
     startTransition(async () => {
       try {
-        await addItem(productId, quantity);
+        await addItem(productId, quantity, variantId);
         toast.success(tp("addedToCart"));
       } catch (err) {
         toast.error(err instanceof ApiError ? err.message : t("errorGeneric"));
@@ -56,7 +52,11 @@ export function AddToCartButton({
         disabled={disabled || isPending}
         onClick={handleAdd}
       >
-        <ShoppingCart className="size-3.5" />
+        {isPending ? (
+          <Loader2 className="size-3.5 animate-spin" />
+        ) : (
+          <ShoppingCart className="size-3.5" />
+        )}
         {isPending ? t("adding") : t("addToCart")}
       </Button>
     );
@@ -86,8 +86,18 @@ export function AddToCartButton({
         </button>
       </div>
       <Button size="lg" className="flex-1 gap-2" disabled={disabled || isPending} onClick={handleAdd}>
-        <ShoppingCart className="size-4" />
-        {disabled ? t("outOfStock") : isPending ? t("adding") : t("addToCart")}
+        {isPending ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <ShoppingCart className="size-4" />
+        )}
+        {disabled && !variantRequired
+          ? t("outOfStock")
+          : variantRequired
+            ? tp("selectOption")
+            : isPending
+              ? t("adding")
+              : t("addToCart")}
       </Button>
     </div>
   );

@@ -1,16 +1,8 @@
 "use client";
 
 import { useTransition } from "react";
-import { User } from "lucide-react";
+import { User, LogOut, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useAuthContext } from "@/components/providers/auth-provider";
@@ -49,26 +41,26 @@ export function AccountMenu() {
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
+    <div className="flex items-center gap-1">
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-label={t("account")}
         render={
-          <Button variant="ghost" size="icon" aria-label={t("account")}>
+          <Link href="/account">
             <User className="size-5" />
-          </Button>
+          </Link>
         }
       />
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuLabel className="truncate">
-          {user.fullName || user.email || t("account")}
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem render={<Link href="/account">{t("account")}</Link>} />
-        <DropdownMenuItem render={<Link href="/orders">{t("orders")}</Link>} />
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} disabled={isPending} variant="destructive">
-          {t("logout")}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-label={t("logout")}
+        disabled={isPending}
+        onClick={handleLogout}
+      >
+        {isPending ? <Loader2 className="size-5 animate-spin" /> : <LogOut className="size-5" />}
+      </Button>
+    </div>
   );
 }

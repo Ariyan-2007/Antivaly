@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="44" fill="#E4092C"/>
+  <path fill="#FFFFFF" fill-rule="evenodd" d="
+    M100,34
+    L170,166
+    L30,166
+    Z
+    M100,64 L124,100 L82,112 Z
+    M72,138 L118,122 L134,166 L66,166 Z
+  "/>
+</svg>
