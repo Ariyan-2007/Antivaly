@@ -88,10 +88,14 @@ registration/login and public catalog browsing use the `{slug}` in the path.
   email matches a Customer account on this Business — don't build a UI that reveals which.
   `POST /api/auth/reset-password` `{ token, newPassword }` (not slug-rooted — shared across
   every realm on the platform, the token itself identifies the account) completes it and
-  revokes every active session for that customer. **No real email delivery exists yet** — the
-  reset token is currently only visible in the backend's own server log, so this flow isn't
-  actually usable by a real customer until an email provider is chosen and wired in; still
-  worth building the UI now so it's ready.
+  revokes every active session for that customer. The email itself is a real branded HTML
+  template now (added 2026-08-17, §9.10) — the Business's logo/name/brand color if this is a
+  storefront account, generic Vastora branding for a BackOffice/Platform one — built around a
+  working `{PublicBaseUrl}/reset-password?token=...` link, not a bare token to copy-paste.
+  **Still no real delivery provider is configured by default** — until a deployment sets
+  `Smtp:Host`, this (like every other email) only ever reaches the backend's own server log, so
+  the flow isn't usable by a real customer yet; still worth building the UI, it's ready the day
+  SMTP is configured.
 
 **Storage:** for a Next.js app, prefer storing tokens in an httpOnly cookie set by a Next.js
 Route Handler that proxies the login/refresh calls, rather than `localStorage` — this app is
@@ -142,8 +146,37 @@ Base URL = `NEXT_PUBLIC_API_BASE_URL`. `{slug}` = `NEXT_PUBLIC_BUSINESS_SLUG`.
 | POST | `/api/auth/reset-password` | none | `{ token, newPassword }` | 204 |
 | POST | `/api/auth/refresh` | none | `{ refreshToken }` | `AuthResponse` |
 | POST | `/api/auth/logout` | none | `{ refreshToken }` | 204 |
+| POST | `/api/auth/verify-email` | none | `{ token }` | 204 |
+| POST | `/api/auth/resend-verification` | Customer | — | 204 |
+| POST | `/api/auth/unsubscribe/{token}` | none | — | 204 — always, non-enumerating (§9.36) |
 | GET | `/api/auth/me` | Customer | — | `UserSummaryResponse` |
 | PUT | `/api/auth/me` | Customer | `{ fullName, phone }` | `UserSummaryResponse` |
+| POST | `/api/auth/me/change-password` | Customer | `{ currentPassword, newPassword }` | 204 |
+| POST | `/api/auth/me/avatar` | Customer | `multipart/form-data`, field `file` | `UserSummaryResponse` |
+| DELETE | `/api/auth/me/avatar` | Customer | — | `UserSummaryResponse` |
+
+**`/api/auth/*` is shared across every realm on the platform** (Customer, BackOffice staff, Platform), not Shop-specific — `GET`/`PUT /api/auth/me`, `change-password`, `avatar`, and the verify/resend/unsubscribe routes above are the same endpoints a BackOffice user hits, scoped by whichever JWT is presented. Only `register`/`login`/the storefront `forgot-password` are Business-slug-rooted and Customer-only (§4).
+
+**Change password vs. reset password — two different flows for two different situations
+(added 2026-08-17, main blueprint §9.41).** `POST /api/auth/me/change-password` is for a
+signed-in customer who knows their current password and wants a new one — it verifies
+`currentPassword` server-side and 401s if it's wrong. `POST /api/auth/reset-password` (§4) is
+for a customer who's locked out and has no session — it trusts the emailed token instead. Both
+end the same way: every active session is revoked, forcing a fresh login everywhere, including
+the device that made the change. Build the "change password" form under Account settings against
+the first one; don't reuse the forgot-password flow just because a session already exists.
+
+**Avatar upload (added 2026-08-17, §9.41).** `POST /api/auth/me/avatar` takes a single
+`multipart/form-data` file field named `file` — same 5 MB limit and
+`image/jpeg`/`image/png`/`image/webp`/`image/gif` whitelist as product images. Local disk storage
+today (`IFileStorageService`), so treat `avatarUrl` as relative to the API base URL, same as
+`Business.logoUrl`/`bannerUrl`/product `images`. `DELETE /api/auth/me/avatar` clears it back to
+`""`, at which point the frontend should fall back to a generated initial/placeholder avatar —
+there's no default image server-side.
+
+**Email verification, not phone.** `AppUser` has a `PhoneVerifiedAt` field in the data model but **no endpoint anywhere verifies a phone number** — don't build a "verify your phone" UI expecting one to exist. `resend-verification` re-sends the email link only; it 204s even if the account is already verified (idempotent, don't treat that as an error).
+
+**Unsubscribe is login-free by design (§9.36).** `POST /api/auth/unsubscribe/{token}` takes `AppUser.UnsubscribeToken` (present on `CustomerDataExport`, and echoed as the last path segment of the unsubscribe link built into marketing emails — abandoned-cart, back-in-stock, review-request) and always 204s, valid token or not, so the link can never be used to probe for account existence. Land it on a simple confirmation page; there's nothing to display beyond "you're unsubscribed."
 
 ```ts
 type StorefrontRegisterRequest = { fullName: string; email: string; password: string; phone: string };
@@ -156,9 +189,12 @@ type AuthResponse = {
 };
 type UserSummaryResponse = {
   id: string; fullName: string; email: string;
+  phone: string; avatarUrl: string;               // added 2026-08-17, §9.41 — avatarUrl is "" when none set
   role: "Customer"; // will always be Customer for accounts created through this app
   tenantId: string; businessId: string;
   status: "PendingVerification" | "Active" | "Blocked";
+  emailVerifiedAt: string | null; phoneVerifiedAt: string | null;  // phoneVerifiedAt is always null — see the note above, nothing ever sets it
+  createdAt: string;                               // "member since"
 };
 ```
 
@@ -569,6 +605,16 @@ self-cancelled by the customer. Restocks items automatically on success, and sin
 also returns any gift-card value and store credit that was spent on it. After delivery the route
 is a **return** (§9.21), not a cancellation.
 
+**Order tracking is entirely `GET`-based — there's no push channel.** Everything a tracking page
+needs lives on `OrderResponse` itself: `status`, `statusHistory` (the full timeline, §9.7),
+`paymentStatus`/`paymentStatusHistory`, and `carrierName`/`trackingNumber`/`trackingUrl` once
+staff add them. There is no separate `/track` or `/timeline` endpoint — fetch the order
+(`GET .../orders/{orderId}` signed-in, or `GET .../orders/lookup?orderNumber=&email=` for a
+guest) and build the whole page from that one response; re-poll it if a "refresh status" button
+is wanted. **No SMS or push notification exists for order updates** — every status change is
+email-only (best-effort, §9.10), so don't build a "text me updates" toggle;
+`NotificationPreferences.marketingSms` exists as a data field but nothing sends to it yet.
+
 ### 6.5 New in 2026-08-16 — account surface
 
 `/api/shop/account/*`, Customer only, scope entirely from the JWT.
@@ -584,6 +630,10 @@ is a **return** (§9.21), not a cancellation.
 | GET | `/api/shop/account/data-export` | `CustomerDataExport` — offer as a JSON download |
 | PUT | `/api/shop/account/notification-preferences` | 204 |
 | DELETE | `/api/shop/account` | 204 — **irreversible**, confirm hard |
+| GET | `/api/shop/account/addresses` | `AddressResponse[]` — added 2026-08-17, §9.41 |
+| POST | `/api/shop/account/addresses` | `AddressResponse` — `SaveAddressRequest` body |
+| PUT | `/api/shop/account/addresses/{addressId}` | `AddressResponse` — `SaveAddressRequest` body |
+| DELETE | `/api/shop/account/addresses/{addressId}` | 204 |
 
 ```ts
 type WishlistItemResponse = {
@@ -607,6 +657,16 @@ type UpdateNotificationPreferencesRequest = {
   reviewRequests: boolean;
   marketingSms: boolean;
 };
+
+// --- added 2026-08-17, §9.41 ---
+type AddressResponse = {
+  id: string; label: string; line1: string; line2: string; city: string; state: string;
+  postalCode: string; country: string; phone: string; isDefault: boolean;
+};
+type SaveAddressRequest = {
+  label: string; line1: string; line2: string; city: string; state: string;
+  postalCode: string; country: string; phone: string; isDefault: boolean;
+};
 ```
 
 **Reviews are moderated by default (§9.25).** A submitted review comes back `Pending` unless the
@@ -621,6 +681,25 @@ customer subscribes to its restock email — say so on the button when `isAvaila
 **Account deletion anonymises rather than erases (§9.37).** Orders survive, stripped of personal
 data, because the merchant has its own legal duty to retain them. Say that in the confirmation
 dialog; "we'll delete everything" would be untrue.
+
+**Saved address book, added 2026-08-17 (§9.41) — the gap flagged in the previous session is
+closed.** `AddressResponse.id` is what makes an entry individually addressable for `PUT`/`DELETE`
+— it's empty/meaningless on the one-off address embedded in an `Order` at checkout
+(`OrderResponse.shippingAddress`/`billingAddress`, §6.4), only real on a saved book entry. Two
+behaviors worth building UI around rather than re-deriving client-side:
+- **The first address ever saved becomes the default automatically**, regardless of what
+  `isDefault` was sent as — there is no "no default" state once at least one address exists. A
+  simple "Save address" button on first use doesn't need its own default-toggle.
+- **Deleting the current default promotes another one** (arbitrarily one of the rest) rather
+  than leaving the book without a default. Don't assume "no default address" is reachable once
+  the list is non-empty.
+
+Still true, and still a frontend decision, not a backend gap: checkout itself is unchanged —
+`CheckoutRequest.shippingAddress`/`billingAddress` still take an inline address every time
+(§6.4). A "pick a saved address" control on the checkout form means fetching
+`GET .../addresses` and pre-filling the inline fields from whichever one the shopper picks (the
+one with `isDefault: true` is the sensible pre-selection) — the backend was never taught to
+accept an address *id* at checkout, only a full address object.
 
 ---
 
@@ -645,7 +724,11 @@ dialog; "we'll delete everything" would be untrue.
    status timeline built from `statusHistory` (§6.4), cancel action gated by `status` per
    §6.4's note, a tracking link when `trackingUrl` is set, and a "return items" action for
    `Delivered` orders inside the return window.
-9. **Account / profile** — `GET`/`PUT /api/auth/me`, plus the §6.5 surface.
+9. **Account / profile** — `GET`/`PUT /api/auth/me` for name/phone, `POST/DELETE
+   /api/auth/me/avatar` for the profile picture, `POST /api/auth/me/change-password` for an
+   in-session password change (§6.1), a saved-addresses tab against `/api/shop/account/addresses`
+   (§6.5), plus the rest of the §6.5 surface (wishlist, reviews, store credit, gift cards,
+   notification preferences, data export, delete account).
 10. **Guest order tracking** — a public page taking order number + email against
    `GET /api/shop/orders/lookup`. Link it from the confirmation email; a guest has no account
    to log into.
@@ -677,5 +760,11 @@ dialog; "we'll delete everything" would be untrue.
   there, you're calling a BackOffice route by mistake — that's the merchant's supplier pricing.
 - **Still no payment gateway** (§9.6). Checkout is cash-on-delivery-shaped; `amountDue` tells you
   what's left after gift cards and store credit, but nothing collects it online.
-- **Still no real email delivery** (§9.10). Verification tokens, password resets and order
-  confirmations are written to the server log. Build the flows; they work, they just don't send.
+- **Still no real delivery provider configured by default** (§9.10). Every transactional and
+  lifecycle email — verification, password reset, order confirmation/status/shipping, returns/
+  refunds, abandoned cart, back-in-stock, review requests — now renders as a real branded HTML
+  template (added 2026-08-17) with the Business's logo, name, and brand color, alongside a
+  plain-text fallback. It's genuinely sendable SMTP mail (`SmtpNotificationService`, MailKit) —
+  but until a deployment sets `Smtp:Host`, it only ever reaches the backend's own server log
+  (`LoggingNotificationService`). Build every flow that depends on receiving one of these; they
+  work end-to-end once SMTP is configured, they just don't leave the server today.

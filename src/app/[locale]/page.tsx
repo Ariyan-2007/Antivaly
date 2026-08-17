@@ -5,8 +5,10 @@ import { HeroBanner } from "@/components/shop/hero-banner";
 import { ProductGrid } from "@/components/shop/product-grid";
 import { Button } from "@/components/ui/button";
 import { getBusiness, getCategories, getProducts, getBanners } from "@/lib/api/catalog";
-import { API_BASE_URL, BUSINESS_SLUG } from "@/lib/constants";
+import { DEFAULT_OG_IMAGE, SITE_URL } from "@/lib/constants";
 import { categoryHref } from "@/lib/routes";
+import { getTopLevelCategories, getChildCategories } from "@/lib/shop/category-tree";
+import type { CategoryResponse, ProductResponse } from "@/types/api";
 
 const PRODUCTS_PER_CATEGORY = 6;
 
@@ -26,6 +28,7 @@ export async function generateMetadata({
       openGraph: {
         title: business.name || "Antivaly",
         description: business.description || undefined,
+        images: [business.bannerUrl || DEFAULT_OG_IMAGE],
       },
     };
   } catch {
@@ -48,25 +51,55 @@ export default async function HomePage({
   // failing doesn't hide every other category's products.
   const categories = await getCategories().catch(() => []);
   const banners = await getBanners().catch(() => []);
-  const activeCategories = categories
-    .filter((c) => c.isActive)
-    .sort((a, b) => a.sortOrder - b.sortOrder);
+  // Top-level categories get first crack at their own home-page row. `categoryId` matching
+  // is exact (no backend support for "include descendants"), and it's common for a catalog
+  // to file every product under a leaf subcategory rather than the parent itself — so a
+  // parent with zero directly-assigned products falls back to one row per child that does
+  // have products, instead of silently disappearing from the homepage.
+  const topLevelCategories = getTopLevelCategories(categories).filter((c) => c.isActive);
 
-  const categoryProductsSettled = await Promise.allSettled(
-    activeCategories.map((category) =>
+  const ownResults = await Promise.allSettled(
+    topLevelCategories.map((category) =>
       getProducts({ categoryId: category.id, pageSize: PRODUCTS_PER_CATEGORY })
     )
   );
-  const categoryProducts = categoryProductsSettled.map((r) =>
-    r.status === "fulfilled" ? r.value.items : []
+
+  const emptyParents = topLevelCategories.filter(
+    (category, i) => ownResults[i].status !== "fulfilled" || ownResults[i].value.items.length === 0
   );
+  const fallbackChildren = emptyParents.flatMap((category) =>
+    getChildCategories(categories, category.id).filter((c) => c.isActive)
+  );
+  const childResults = await Promise.allSettled(
+    fallbackChildren.map((category) =>
+      getProducts({ categoryId: category.id, pageSize: PRODUCTS_PER_CATEGORY })
+    )
+  );
+
+  const categoryRows: { category: CategoryResponse; products: ProductResponse[] }[] = [];
+  topLevelCategories.forEach((category, i) => {
+    const result = ownResults[i];
+    const products = result.status === "fulfilled" ? result.value.items : [];
+    if (products.length > 0) {
+      categoryRows.push({ category, products });
+    } else {
+      getChildCategories(categories, category.id)
+        .filter((c) => c.isActive)
+        .forEach((child) => {
+          const childIndex = fallbackChildren.findIndex((c) => c.id === child.id);
+          const childResult = childResults[childIndex];
+          const childProducts = childResult?.status === "fulfilled" ? childResult.value.items : [];
+          if (childProducts.length > 0) categoryRows.push({ category: child, products: childProducts });
+        });
+    }
+  });
 
   const businessName = business.name || "Antivaly";
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: businessName,
-    url: `${API_BASE_URL}/shop/${BUSINESS_SLUG}`,
+    url: `${SITE_URL}/${locale}`,
     logo: business.logoUrl || undefined,
     email: business.contactEmail || undefined,
     telephone: business.contactPhone || undefined,
@@ -78,36 +111,32 @@ export default async function HomePage({
 
       <HeroBanner business={business} banners={banners} />
 
-      {activeCategories.length === 0 ? (
+      {categoryRows.length === 0 ? (
         <p className="py-16 text-center text-sm text-muted-foreground">{t("noProducts")}</p>
       ) : (
-        activeCategories.map((category, i) => {
-          const products = categoryProducts[i];
-          if (products.length === 0) return null;
-          return (
-            <section key={category.id} className="flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <h2 className="font-heading text-xl font-bold text-foreground sm:text-2xl">
-                  {category.name || ""}
-                </h2>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  render={
-                    <Link href={categoryHref(category.id, category.slug)}>
-                      {t("exploreProducts")}
-                    </Link>
-                  }
-                />
-              </div>
-              <ProductGrid
-                products={products.slice(0, PRODUCTS_PER_CATEGORY)}
-                currency={business.currency || "USD"}
-                locale={locale}
+        categoryRows.map(({ category, products }) => (
+          <section key={category.id} className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-heading text-xl font-bold text-foreground sm:text-2xl">
+                {category.name || ""}
+              </h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                render={
+                  <Link href={categoryHref(category.id, category.slug)}>
+                    {t("exploreProducts")}
+                  </Link>
+                }
               />
-            </section>
-          );
-        })
+            </div>
+            <ProductGrid
+              products={products.slice(0, PRODUCTS_PER_CATEGORY)}
+              currency={business.currency || "USD"}
+              locale={locale}
+            />
+          </section>
+        ))
       )}
     </div>
   );

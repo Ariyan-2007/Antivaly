@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
-import { Loader2, Truck, Store, Check } from "lucide-react";
+import { Loader2, Truck, Store, Check, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,9 +19,12 @@ import { useCartStore } from "@/store/cart-store";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useBusiness } from "@/components/providers/business-provider";
 import { CART_TOKEN_HEADER, getGuestToken } from "@/lib/cart/guest-token";
+import { getLastCheckoutAddress, setLastCheckoutAddress } from "@/lib/checkout/last-address-cache";
+import { orderHref } from "@/lib/routes";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type {
+  AddressResponse,
   CheckoutRequest,
   CheckoutPreviewResponse,
   OrderResponse,
@@ -74,11 +77,66 @@ export function CheckoutForm({
     watch,
     control,
     setError,
+    reset,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { country: "Bangladesh", isDefault: true, line2: "" },
   });
+
+  const [savedAddresses, setSavedAddresses] = useState<AddressResponse[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [saveNewAddress, setSaveNewAddress] = useState(false);
+
+  function fillFromAddress(addr: {
+    label: string | null; line1: string | null; line2: string | null; city: string | null;
+    state: string | null; postalCode: string | null; country: string | null; phone: string | null;
+  }) {
+    reset({
+      label: addr.label ?? "",
+      line1: addr.line1 ?? "",
+      line2: addr.line2 ?? "",
+      city: addr.city ?? "",
+      state: addr.state ?? "",
+      postalCode: addr.postalCode ?? "",
+      country: addr.country || "Bangladesh",
+      phone: addr.phone ?? "",
+      isDefault: true,
+    });
+  }
+
+  // Signed-in customers get the real saved-address book (blueprint §6.5/§9.41) — pre-fill from
+  // the default one. Guests have no book, so they fall back to whatever this browser last
+  // checked out with (last-address-cache.ts).
+  useEffect(() => {
+    if (!user) {
+      const cached = getLastCheckoutAddress();
+      if (cached) fillFromAddress(cached);
+      return;
+    }
+    browserFetch<AddressResponse[]>("/api/shop/account/addresses")
+      .then((addrs) => {
+        const list = Array.isArray(addrs) ? addrs : [];
+        setSavedAddresses(list);
+        const preferred = list.find((a) => a.isDefault) ?? list[0];
+        if (preferred) {
+          setSelectedAddressId(preferred.id);
+          fillFromAddress(preferred);
+        }
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  function selectSavedAddress(addr: AddressResponse) {
+    setSelectedAddressId(addr.id);
+    fillFromAddress(addr);
+  }
+
+  function clearToNewAddress() {
+    setSelectedAddressId(null);
+    reset({ label: "", line1: "", line2: "", city: "", state: "", postalCode: "", country: "Bangladesh", phone: "", isDefault: true });
+  }
 
   const address = watch();
   const isGuest = !user;
@@ -92,6 +150,9 @@ export function CheckoutForm({
   const [preview, setPreview] = useState<CheckoutPreviewResponse | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const previewTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // A 409 on checkout names the specific product and quantity available in its message
+  // (blueprint §5/§6.4) — surfaced inline against that cart line rather than just a toast.
+  const [stockConflict, setStockConflict] = useState<string | null>(null);
 
   // Deliberately regenerated only when the cart's identity changes (blueprint §6.4) — the
   // deps are the reset signal, not values read inside the memo.
@@ -165,20 +226,52 @@ export function CheckoutForm({
       return;
     }
 
+    setStockConflict(null);
     startTransition(async () => {
       try {
+        const request = buildRequest();
         const order = await browserFetch<OrderResponse>("/api/shop/orders/checkout", {
           method: "POST",
-          body: buildRequest(),
+          body: request,
           headers: { ...guestHeaders(), "Idempotency-Key": idempotencyKey },
         });
+        if (isGuest) {
+          setLastCheckoutAddress(request.shippingAddress);
+        } else if (saveNewAddress && !selectedAddressId) {
+          // Best-effort — the order already went through either way, so a failure here
+          // shouldn't block navigating to the confirmation.
+          browserFetch("/api/shop/account/addresses", {
+            method: "POST",
+            body: {
+              label: values.label,
+              line1: values.line1,
+              line2: values.line2 ?? "",
+              city: values.city,
+              state: values.state,
+              postalCode: values.postalCode,
+              country: values.country,
+              phone: values.phone,
+              isDefault: values.isDefault,
+            },
+          }).catch(() => {});
+        }
         setCart(null);
-        router.push(`/orders/${order.id}`);
+        router.push(orderHref(order.id) as never);
       } catch (err) {
-        toast.error(err instanceof ApiError ? err.message : tc("errorGeneric"));
+        if (err instanceof ApiError && err.status === 409) {
+          // Nothing was actually reserved (blueprint §6.4) — safe to let the customer just
+          // adjust the offending line and retry.
+          setStockConflict(err.message);
+        } else {
+          toast.error(err instanceof ApiError ? err.message : tc("errorGeneric"));
+        }
       }
     });
   }
+
+  const conflictedItem = stockConflict
+    ? cart.items.find((item) => item.productName && stockConflict.includes(item.productName))
+    : null;
 
   if (guestBlocked) {
     return (
@@ -222,6 +315,42 @@ export function CheckoutForm({
         )}
 
         <h2 className="text-lg font-semibold text-foreground">{t("shippingAddress")}</h2>
+
+        {savedAddresses.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground">{t("useSavedAddress")}</span>
+            <div className="flex flex-wrap gap-2">
+              {savedAddresses.map((addr) => (
+                <button
+                  key={addr.id}
+                  type="button"
+                  onClick={() => selectSavedAddress(addr)}
+                  className={cn(
+                    "rounded-lg border px-3 py-1.5 text-left text-xs transition-colors",
+                    selectedAddressId === addr.id
+                      ? "border-primary bg-primary/5 ring-1 ring-primary"
+                      : "border-border hover:border-primary/50"
+                  )}
+                >
+                  <span className="block font-medium text-foreground">{addr.label}</span>
+                  <span className="text-muted-foreground">{addr.city}</span>
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={clearToNewAddress}
+                className={cn(
+                  "rounded-lg border px-3 py-1.5 text-left text-xs transition-colors",
+                  selectedAddressId === null
+                    ? "border-primary bg-primary/5 ring-1 ring-primary"
+                    : "border-border hover:border-primary/50"
+                )}
+              >
+                {t("enterNewAddress")}
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="label">{t("addressLabel")}</Label>
@@ -284,6 +413,13 @@ export function CheckoutForm({
             </label>
           )}
         />
+
+        {user && !selectedAddressId && (
+          <label className="flex items-center gap-2 text-sm text-foreground">
+            <Checkbox checked={saveNewAddress} onCheckedChange={(v) => setSaveNewAddress(!!v)} />
+            {t("saveAddressForNextTime")}
+          </label>
+        )}
 
         {business.deliveryModuleEnabled && (
           <div className="flex flex-col gap-2 border-t border-border pt-4">
@@ -392,15 +528,37 @@ export function CheckoutForm({
         <h2 className="text-lg font-semibold text-foreground">{t("orderSummary")}</h2>
 
         <div className="flex flex-col gap-1.5 text-sm">
-          {cart.items.map((item) => (
-            <div key={`${item.productId}-${item.variantId ?? ""}`} className="flex justify-between text-muted-foreground">
-              <span className="line-clamp-1 pr-2">
-                {item.productName || tc("unnamedItem")}
-                {item.variantSummary ? ` (${item.variantSummary})` : ""} × {item.quantity}
-              </span>
-              <span className="shrink-0">{formatMoney(item.lineTotal, currency, locale)}</span>
-            </div>
-          ))}
+          {cart.items.map((item) => {
+            const isConflicted = conflictedItem?.productId === item.productId && conflictedItem?.variantId === item.variantId;
+            return (
+              <div key={`${item.productId}-${item.variantId ?? ""}`} className="flex flex-col gap-1">
+                <div
+                  className={cn(
+                    "flex justify-between",
+                    isConflicted ? "font-medium text-destructive" : "text-muted-foreground"
+                  )}
+                >
+                  <span className="line-clamp-1 pr-2">
+                    {item.productName || tc("unnamedItem")}
+                    {item.variantSummary ? ` (${item.variantSummary})` : ""} × {item.quantity}
+                  </span>
+                  <span className="shrink-0">{formatMoney(item.lineTotal, currency, locale)}</span>
+                </div>
+                {isConflicted && (
+                  <p className="flex items-start gap-1 text-xs text-destructive">
+                    <AlertTriangle className="mt-0.5 size-3 shrink-0" />
+                    {stockConflict}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+          {stockConflict && !conflictedItem && (
+            <p className="flex items-start gap-1 text-xs text-destructive">
+              <AlertTriangle className="mt-0.5 size-3 shrink-0" />
+              {stockConflict}
+            </p>
+          )}
         </div>
 
         {previewLoading && !preview ? (

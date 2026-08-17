@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { OrderCard } from "@/components/orders/order-card";
 import { PaginationControls } from "@/components/shop/pagination-controls";
-import { getServerSession } from "@/lib/auth/session";
 import { serverAuthedFetch } from "@/lib/auth/authed-fetch";
 import { getBusiness } from "@/lib/api/catalog";
 import { DEFAULT_CURRENCY } from "@/lib/constants";
@@ -24,10 +22,6 @@ export default async function OrdersPage({
   const { page: pageRaw } = await searchParams;
   setRequestLocale(locale);
   const t = await getTranslations("orders");
-  const session = await getServerSession();
-  if (!session) {
-    redirect(`/${locale}/login?redirect=${encodeURIComponent(`/${locale}/orders`)}`);
-  }
 
   const page = Math.max(1, Number(pageRaw) || 1);
   const [business, result] = await Promise.all([
@@ -37,8 +31,8 @@ export default async function OrdersPage({
   const orders = result.data?.items ?? [];
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="font-heading mb-6 text-2xl font-bold text-foreground">{t("title")}</h1>
+    <div className="flex flex-col gap-6">
+      <h1 className="font-heading text-2xl font-bold text-foreground">{t("title")}</h1>
       {result.error === "unavailable" ? (
         <div className="flex flex-col items-center gap-4 py-24 text-center">
           <p className="text-muted-foreground">{t("loadError")}</p>

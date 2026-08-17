@@ -23,6 +23,26 @@ export async function browserFetch<T>(path: string, init: BrowserFetchInit = {})
     throw new ApiError({ status: 0, title: "You appear to be offline. Please check your connection and try again." });
   }
 
+  return parseResponse<T>(res);
+}
+
+/** For the one client-side call that isn't JSON (avatar upload, blueprint §6.1/§9.41) — no
+ * `Content-Type` header so the browser sets its own multipart boundary. */
+export async function browserFetchFormData<T>(
+  path: string,
+  init: { method: string; formData: FormData }
+): Promise<T> {
+  let res: Response;
+  try {
+    res = await fetch(path, { method: init.method, body: init.formData });
+  } catch {
+    throw new ApiError({ status: 0, title: "You appear to be offline. Please check your connection and try again." });
+  }
+
+  return parseResponse<T>(res);
+}
+
+async function parseResponse<T>(res: Response): Promise<T> {
   if (res.status === 204) return undefined as T;
 
   let text: string;

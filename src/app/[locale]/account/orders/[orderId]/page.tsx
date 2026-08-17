@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { OrderDetailView } from "@/components/orders/order-detail-view";
-import { getServerSession } from "@/lib/auth/session";
 import { serverAuthedFetch } from "@/lib/auth/authed-fetch";
 import { getBusiness } from "@/lib/api/catalog";
 import type { OrderResponse } from "@/types/api";
@@ -17,10 +16,6 @@ export default async function OrderDetailPage({
   const { locale, orderId } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("orders");
-  const session = await getServerSession();
-  if (!session) {
-    redirect(`/${locale}/login?redirect=${encodeURIComponent(`/${locale}/orders/${orderId}`)}`);
-  }
 
   const [business, result] = await Promise.all([
     getBusiness(),
@@ -29,7 +24,7 @@ export default async function OrderDetailPage({
 
   if (result.error === "unavailable") {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-24 text-center">
+      <div className="py-24 text-center">
         <p className="text-muted-foreground">{t("loadError")}</p>
       </div>
     );
@@ -37,9 +32,5 @@ export default async function OrderDetailPage({
 
   if (!result.data) notFound();
 
-  return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      <OrderDetailView order={result.data} business={business} locale={locale} />
-    </div>
-  );
+  return <OrderDetailView order={result.data} business={business} locale={locale} />;
 }

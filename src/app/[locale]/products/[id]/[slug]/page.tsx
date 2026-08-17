@@ -27,7 +27,7 @@ import {
   getRelated,
 } from "@/lib/api/catalog";
 import { categoryHref } from "@/lib/routes";
-import { DEFAULT_CURRENCY } from "@/lib/constants";
+import { DEFAULT_CURRENCY, DEFAULT_OG_IMAGE } from "@/lib/constants";
 
 type Props = {
   params: Promise<{ locale: string; id: string; slug: string }>;
@@ -53,11 +53,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: product.metaTitle || product.name || undefined,
     description: product.metaDescription || product.description || product.name || undefined,
-    alternates: { canonical: `/${locale}/products/${id}/${slug}` },
+    alternates: {
+      canonical: `/${locale}/products/${id}/${slug}`,
+      languages: { en: `/en/products/${id}/${slug}`, bn: `/bn/products/${id}/${slug}` },
+    },
     openGraph: {
       title: product.name || undefined,
       description: product.description || undefined,
-      images: images.length ? images : undefined,
+      images: images.length ? images : [DEFAULT_OG_IMAGE],
     },
   };
 }

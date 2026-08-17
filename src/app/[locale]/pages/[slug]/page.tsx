@@ -18,12 +18,13 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const page = await getPage(slug);
   if (!page) return {};
   return {
     title: page.metaTitle || page.title || undefined,
     description: page.metaDescription || undefined,
+    alternates: { canonical: `/${locale}/pages/${slug}` },
   };
 }
 

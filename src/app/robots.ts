@@ -6,7 +6,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/*/account", "/*/cart", "/*/checkout", "/*/orders", "/api/"],
+      // Orders live under /account/orders now, already covered by /*/account.
+      disallow: ["/*/account", "/*/cart", "/*/checkout", "/api/"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };

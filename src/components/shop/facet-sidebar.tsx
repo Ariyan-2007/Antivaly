@@ -10,11 +10,44 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { CatalogFacetsResponse } from "@/types/api";
+import { categoryHref } from "@/lib/routes";
+import { getChildCategories } from "@/lib/shop/category-tree";
+import type { CatalogFacetsResponse, CategoryResponse } from "@/types/api";
 
 const RATING_OPTIONS = [4, 3, 2, 1];
 
-export function FacetSidebar({ facets }: { facets: CatalogFacetsResponse }) {
+type ResolvedFacetCategory = { category: CategoryResponse; count: number };
+type UnresolvedFacetCategory = { value: string; count: number };
+
+/** `facets.categories[].value` is presumed to be a categoryId, but that's unconfirmed against
+ * the live API — resolve defensively (id match, then case-insensitive name match) so an
+ * unexpected shape degrades to plain text instead of a broken link. */
+function resolveFacetCategories(
+  facetCategories: { value: string; count: number }[],
+  categories: CategoryResponse[]
+): { resolved: ResolvedFacetCategory[]; unresolved: UnresolvedFacetCategory[] } {
+  const resolved: ResolvedFacetCategory[] = [];
+  const unresolved: UnresolvedFacetCategory[] = [];
+  for (const entry of facetCategories) {
+    const byId = categories.find((c) => c.id === entry.value);
+    const match = byId ?? categories.find((c) => (c.name || "").toLowerCase() === entry.value.toLowerCase());
+    if (match) resolved.push({ category: match, count: entry.count });
+    else unresolved.push(entry);
+  }
+  return { resolved, unresolved };
+}
+
+export function FacetSidebar({
+  facets,
+  categories,
+  showCategoryFilter,
+}: {
+  facets: CatalogFacetsResponse;
+  categories?: CategoryResponse[];
+  /** Show a "Category" filter section — only meaningful on the all-products page, where
+   * `categoryId` isn't already fixed by the route. */
+  showCategoryFilter?: boolean;
+}) {
   const t = useTranslations("listing");
   const router = useRouter();
   const pathname = usePathname();
@@ -44,8 +77,24 @@ export function FacetSidebar({ facets }: { facets: CatalogFacetsResponse }) {
     });
   }
 
+  function goToCategory(category: CategoryResponse) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("page");
+    const qs = params.toString();
+    router.push(`${categoryHref(category.id, category.slug)}${qs ? `?${qs}` : ""}` as never);
+  }
+
   const hasActiveFilters =
     activeBrand || activeTags.length > 0 || inStockOnly || minRating || minPrice || maxPrice;
+
+  const { resolved: resolvedFacetCategories, unresolved: unresolvedFacetCategories } =
+    showCategoryFilter && categories
+      ? resolveFacetCategories(facets.categories, categories)
+      : { resolved: [], unresolved: [] };
+  const resolvedIds = new Set(resolvedFacetCategories.map((r) => r.category.id));
+  const topLevelFacetCategories = resolvedFacetCategories.filter(
+    (r) => !r.category.parentCategoryId || !resolvedIds.has(r.category.parentCategoryId)
+  );
 
   return (
     <aside className="flex w-full shrink-0 flex-col gap-6 lg:w-56">
@@ -57,6 +106,49 @@ export function FacetSidebar({ facets }: { facets: CatalogFacetsResponse }) {
           <X className="size-3.5" />
           {t("clearFilters")}
         </Link>
+      )}
+
+      {showCategoryFilter && categories && (resolvedFacetCategories.length > 0 || unresolvedFacetCategories.length > 0) && (
+        <div className="flex flex-col gap-2">
+          <span className="text-sm font-semibold text-foreground">{t("category")}</span>
+          <div className="flex flex-col gap-1.5">
+            {topLevelFacetCategories.map(({ category, count }) => (
+              <div key={category.id} className="flex flex-col gap-1">
+                <button
+                  type="button"
+                  onClick={() => goToCategory(category)}
+                  className="flex items-center justify-between text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <span className="line-clamp-1 text-left">{category.name}</span>
+                  <span className="shrink-0 text-xs">{count}</span>
+                </button>
+                {getChildCategories(categories, category.id)
+                  .filter((child) => resolvedIds.has(child.id))
+                  .map((child) => {
+                    const childEntry = resolvedFacetCategories.find((r) => r.category.id === child.id);
+                    if (!childEntry) return null;
+                    return (
+                      <button
+                        key={child.id}
+                        type="button"
+                        onClick={() => goToCategory(child)}
+                        className="flex items-center justify-between pl-3 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        <span className="line-clamp-1 text-left">{childEntry.category.name}</span>
+                        <span className="shrink-0 text-xs">{childEntry.count}</span>
+                      </button>
+                    );
+                  })}
+              </div>
+            ))}
+            {unresolvedFacetCategories.map((entry) => (
+              <div key={entry.value} className="flex items-center justify-between text-sm text-muted-foreground">
+                <span className="line-clamp-1 text-left">{entry.value}</span>
+                <span className="shrink-0 text-xs">{entry.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       <div className="flex flex-col gap-2">

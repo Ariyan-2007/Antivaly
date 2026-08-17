@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { WishlistItemCard } from "@/components/account/wishlist-item-card";
 import { PaginationControls } from "@/components/shop/pagination-controls";
-import { getServerSession } from "@/lib/auth/session";
 import { serverAuthedFetch } from "@/lib/auth/authed-fetch";
 import { getBusiness } from "@/lib/api/catalog";
 import { DEFAULT_CURRENCY } from "@/lib/constants";
@@ -22,10 +20,6 @@ export default async function WishlistPage({
   const { page: pageRaw } = await searchParams;
   setRequestLocale(locale);
   const t = await getTranslations("wishlist");
-  const session = await getServerSession();
-  if (!session) {
-    redirect(`/${locale}/login?redirect=${encodeURIComponent(`/${locale}/account/wishlist`)}`);
-  }
 
   const page = Math.max(1, Number(pageRaw) || 1);
   const [business, result] = await Promise.all([
@@ -38,8 +32,8 @@ export default async function WishlistPage({
   const currency = business.currency || DEFAULT_CURRENCY;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="font-heading mb-6 text-2xl font-bold text-foreground">{t("title")}</h1>
+    <div className="flex flex-col gap-6">
+      <h1 className="font-heading text-2xl font-bold text-foreground">{t("title")}</h1>
       {result.error === "unavailable" ? (
         <p className="py-16 text-center text-sm text-muted-foreground">{t("loadError")}</p>
       ) : items.length === 0 ? (

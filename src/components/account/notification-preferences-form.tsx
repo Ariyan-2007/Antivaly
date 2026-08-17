@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -9,6 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { browserFetch } from "@/lib/api/browser";
 import { ApiError } from "@/lib/api/client";
+import { useAuth } from "@/components/providers/auth-provider";
+import {
+  getCachedNotificationPreferences,
+  setCachedNotificationPreferences,
+} from "@/lib/account/notification-preferences-cache";
 import type { UpdateNotificationPreferencesRequest } from "@/types/api";
 
 const FIELDS: (keyof UpdateNotificationPreferencesRequest)[] = [
@@ -18,17 +23,30 @@ const FIELDS: (keyof UpdateNotificationPreferencesRequest)[] = [
   "marketingSms",
 ];
 
-/** Every preference defaults to false — opt-in only (blueprint §6.5). */
+const DEFAULTS: UpdateNotificationPreferencesRequest = {
+  marketingEmail: false,
+  backInStockAlerts: false,
+  reviewRequests: false,
+  marketingSms: false,
+};
+
+/** Every preference defaults to false — opt-in only (blueprint §6.5). There's no GET for this
+ * resource on the API, so on mount this loads whatever this browser last successfully saved
+ * (see notification-preferences-cache.ts) rather than always showing a blank opt-out state
+ * that would silently overwrite real opt-ins on the next save. */
 export function NotificationPreferencesForm() {
   const t = useTranslations("account");
   const tc = useTranslations("common");
-  const [values, setValues] = useState<UpdateNotificationPreferencesRequest>({
-    marketingEmail: false,
-    backInStockAlerts: false,
-    reviewRequests: false,
-    marketingSms: false,
-  });
+  const user = useAuth();
+  const [values, setValues] = useState<UpdateNotificationPreferencesRequest>(DEFAULTS);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (!user) return;
+    const cached = getCachedNotificationPreferences(user.id);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (cached) setValues(cached);
+  }, [user]);
 
   function handleSave() {
     startTransition(async () => {
@@ -37,6 +55,7 @@ export function NotificationPreferencesForm() {
           method: "PUT",
           body: values,
         });
+        if (user) setCachedNotificationPreferences(user.id, values);
         toast.success(tc("save"));
       } catch (err) {
         toast.error(err instanceof ApiError ? err.message : tc("errorGeneric"));

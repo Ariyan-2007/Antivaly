@@ -14,3 +14,8 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://antivaly.c
 
 /** Products at/under this stock count show a low-stock urgency indicator. */
 export const LOW_STOCK_THRESHOLD = 5;
+
+/** Any page-level `generateMetadata` that sets its own `openGraph` object entirely replaces
+ * (not merges with) the root layout's — so every one of those needs its own image fallback
+ * rather than relying on the layout's or the file-based opengraph-image.png convention. */
+export const DEFAULT_OG_IMAGE = "/opengraph-image.png";

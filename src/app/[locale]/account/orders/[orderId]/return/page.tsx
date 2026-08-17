@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ReturnForm } from "@/components/orders/return-form";
-import { getServerSession } from "@/lib/auth/session";
 import { serverAuthedFetch } from "@/lib/auth/authed-fetch";
 import { getBusiness } from "@/lib/api/catalog";
 import { isReturnEligible } from "@/components/orders/order-detail-view";
@@ -18,10 +17,6 @@ export default async function ReturnRequestPage({
   const { locale, orderId } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("returns");
-  const session = await getServerSession();
-  if (!session) {
-    redirect(`/${locale}/login?redirect=${encodeURIComponent(`/${locale}/orders/${orderId}/return`)}`);
-  }
 
   const [business, result] = await Promise.all([
     getBusiness(),
@@ -31,8 +26,8 @@ export default async function ReturnRequestPage({
   if (!result.data || !isReturnEligible(result.data, business)) notFound();
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="font-heading mb-6 text-2xl font-bold text-foreground">{t("startReturn")}</h1>
+    <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      <h1 className="font-heading text-2xl font-bold text-foreground">{t("startReturn")}</h1>
       <ReturnForm orderId={result.data.id} items={result.data.items ?? []} />
     </div>
   );

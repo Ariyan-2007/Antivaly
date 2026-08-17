@@ -3,9 +3,11 @@ import { Truck, ExternalLink } from "lucide-react";
 import { OrderStatusBadge, PaymentStatusBadge } from "@/components/orders/order-status-badge";
 import { OrderStatusTimeline } from "@/components/orders/order-status-timeline";
 import { CancelOrderButton } from "@/components/orders/cancel-order-button";
+import { RefreshOrderButton } from "@/components/orders/refresh-order-button";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { formatDate, formatMoney } from "@/lib/format";
+import { orderHref } from "@/lib/routes";
 import type { BusinessResponse, OrderResponse, OrderStatus } from "@/types/api";
 
 const CANCELLABLE = new Set<OrderStatus>(["PendingPayment", "Processing", "Confirmed"]);
@@ -58,9 +60,10 @@ export async function OrderDetailView({
             {t("placedOn", { date: formatDate(order.placedAt, locale) })}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <OrderStatusBadge status={order.status} />
           <PaymentStatusBadge status={order.paymentStatus} />
+          <RefreshOrderButton />
         </div>
       </div>
 
@@ -182,7 +185,7 @@ export async function OrderDetailView({
             <Button
               variant="outline"
               size="sm"
-              render={<Link href={`/orders/${order.id}/return`}>{t("returnItems")}</Link>}
+              render={<Link href={`${orderHref(order.id)}/return` as never}>{t("returnItems")}</Link>}
             />
           )}
         </div>

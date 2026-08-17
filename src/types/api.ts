@@ -18,10 +18,20 @@ export type UserSummaryResponse = {
   id: string;
   fullName: string | null;
   email: string | null;
+  /** Added 2026-08-17 (§9.41). */
+  phone: string | null;
+  /** Added 2026-08-17 (§9.41) — "" when no avatar is set, relative to the API base URL like
+   * other seller-uploaded images. */
+  avatarUrl: string | null;
   role: UserRole;
   tenantId: string | null;
   businessId: string | null;
   status: UserStatus;
+  emailVerifiedAt: string | null;
+  /** Always null — no endpoint anywhere verifies a phone number (blueprint §6.1). */
+  phoneVerifiedAt: string | null;
+  /** "Member since" — added 2026-08-17. */
+  createdAt: string;
 };
 
 export type AuthResponse = {
@@ -524,6 +534,38 @@ export type UpdateNotificationPreferencesRequest = {
 };
 
 export type CustomerDataExport = Record<string, unknown>;
+
+/** Added 2026-08-17 (§9.41). `id` is only meaningful on a saved book entry — empty/meaningless
+ * on the one-off address embedded in an Order at checkout. */
+export type AddressResponse = {
+  id: string;
+  label: string | null;
+  line1: string | null;
+  line2: string | null;
+  city: string | null;
+  state: string | null;
+  postalCode: string | null;
+  country: string | null;
+  phone: string | null;
+  isDefault: boolean;
+};
+
+export type SaveAddressRequest = {
+  label: string;
+  line1: string;
+  line2: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  phone: string;
+  isDefault: boolean;
+};
+
+export type ChangePasswordRequest = {
+  currentPassword: string;
+  newPassword: string;
+};
 
 /** RFC 7807 application/problem+json shape returned on every non-2xx response. */
 export type ProblemDetails = {

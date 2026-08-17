@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DEFAULT_CURRENCY } from "@/lib/constants";
 import { isValidImageUrl } from "@/lib/image";
 import { cn } from "@/lib/utils";
+import { getTopLevelCategories } from "@/lib/shop/category-tree";
 import type { BusinessResponse, CategoryResponse, MenuNode } from "@/types/api";
 
 function SearchBarFallback() {
@@ -63,9 +64,8 @@ export async function SiteHeader({
               className="size-9 rounded-lg object-cover"
             />
           ) : (
-            <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
-              {businessName.slice(0, 1)}
-            </span>
+            // eslint-disable-next-line @next/next/no-img-element -- static brand asset, not user content
+            <img src="/brand/logo-mark.svg" alt="" className="size-9 rounded-lg" />
           )}
           <span className="font-heading hidden text-lg font-bold text-foreground sm:inline">
             {businessName}
@@ -95,7 +95,7 @@ export async function SiteHeader({
 
       <nav className="hidden border-t border-border/60 px-4 py-2.5 md:block">
         <div className="mx-auto flex max-w-7xl items-center gap-4">
-          <CategoryChips categories={categories} />
+          <CategoryChips categories={getTopLevelCategories(categories)} />
           {menu.length > 0 && (
             <div className={cn("flex shrink-0 items-center gap-4 border-l border-border/60 pl-4")}>
               {menu.map((item) => (

@@ -10,6 +10,8 @@ export function categoryHref(id: string, slug: string | null | undefined): strin
   return `/categories/${id}/${slug || id}`;
 }
 
+// Orders live under /account/orders so the account sidebar can keep its chrome across order
+// pages, rather than a top-level /orders route the sidebar would have to link away from.
 export function orderHref(orderId: string): string {
-  return `/orders/${orderId}`;
+  return `/account/orders/${orderId}`;
 }

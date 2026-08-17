@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { useRouter } from "@/i18n/navigation";
 import { browserFetch } from "@/lib/api/browser";
 import { ApiError } from "@/lib/api/client";
+import { formatDate } from "@/lib/format";
 import type { UserSummaryResponse } from "@/types/api";
 
 const schema = z.object({
@@ -24,6 +25,7 @@ type FormValues = z.infer<typeof schema>;
 export function ProfileForm({ user }: { user: UserSummaryResponse }) {
   const t = useTranslations("account");
   const tc = useTranslations("common");
+  const locale = useLocale();
   const router = useRouter();
 
   const {
@@ -32,9 +34,9 @@ export function ProfileForm({ user }: { user: UserSummaryResponse }) {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    // The API's UserSummaryResponse doesn't return phone back to us, so it can't be
-    // pre-filled after login — only right after this form itself has been saved.
-    defaultValues: { fullName: user.fullName ?? "", phone: "" },
+    // `UserSummaryResponse` returns phone directly since 2026-08-17 (§9.41) — no more
+    // guessing at a client-cached value.
+    defaultValues: { fullName: user.fullName ?? "", phone: user.phone ?? "" },
   });
 
   async function onSubmit(values: FormValues) {
@@ -70,6 +72,12 @@ export function ProfileForm({ user }: { user: UserSummaryResponse }) {
         {isSubmitting && <Loader2 className="size-4 animate-spin" />}
         {t("saveChanges")}
       </Button>
+
+      {user.createdAt && (
+        <p className="text-xs text-muted-foreground">
+          {t("memberSince", { date: formatDate(user.createdAt, locale) })}
+        </p>
+      )}
     </form>
   );
 }
