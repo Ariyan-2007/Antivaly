@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { Zap, Truck, Store, ShieldCheck } from "lucide-react";
+import { Zap, Truck, Store, ShieldCheck, RotateCcw } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { SearchBar } from "@/components/shop/search-bar";
 import { CartButton } from "@/components/cart/cart-button";
@@ -50,6 +50,10 @@ export async function SiteHeader({
         <span className="inline-flex items-center gap-1.5">
           <ShieldCheck className="size-3.5" />
           {t("trustSecure")}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <RotateCcw className="size-3.5" />
+          {t("trustReturns")}
         </span>
       </div>
 

@@ -61,6 +61,8 @@
     "trustPickupDesc": "ডেলিভারির অপেক্ষা ছাড়াই অর্ডার সংগ্রহ করুন",
     "trustSecure": "নিরাপদ চেকআউট",
     "trustSecureDesc": "আপনার অ্যাকাউন্ট ও অর্ডার সুরক্ষিত",
+    "trustReturns": "৭ দিনের রিটার্ন",
+    "trustReturnsDesc": "সহজ রিটার্ন, কোনো ঝামেলা নেই",
     "trustSupport": "সরাসরি সহায়তা",
     "trustSupportDesc": "যেকোনো প্রয়োজনে সরাসরি যোগাযোগ করুন",
     "noProducts": "এখনো কোনো পণ্য যোগ করা হয়নি।",
@@ -162,6 +164,7 @@
     "itemCount": "{count}টি পণ্য",
     "clearCart": "কার্ট খালি করুন",
     "proceedToCheckout": "চেকআউট করুন",
+    "orderSummary": "অর্ডার সারাংশ",
     "signInTitle": "কার্ট দেখতে সাইন ইন করুন",
     "signInDesc": "Antivaly আপনার কার্ট অ্যাকাউন্টে সংরক্ষণ করে রাখে, তাই পণ্য যোগ করতে লগ ইন বা অ্যাকাউন্ট তৈরি করুন।",
     "estimatedTotal": "আনুমানিক সর্বমোট",
@@ -179,6 +182,7 @@
   },
   "checkout": {
     "title": "চেকআউট",
+    "backToCart": "কার্টে ফিরে যান",
     "shippingAddress": "ডেলিভারি ঠিকানা",
     "addressLabel": "ঠিকানার লেবেল",
     "addressLabelPlaceholder": "বাসা, অফিস, ...",
@@ -280,6 +284,11 @@
     "navSecurity": "নিরাপত্তা",
     "navData": "আপনার ডেটা",
     "navDelete": "অ্যাকাউন্ট মুছুন",
+    "statOrders": "অর্ডার করেছেন",
+    "statWishlist": "উইশলিস্ট আইটেম",
+    "statStoreCredit": "স্টোর ক্রেডিট",
+    "statActiveReturns": "চলমান রিটার্ন",
+    "quickLinks": "দ্রুত লিংক",
     "fullName": "পুরো নাম",
     "email": "ইমেইল ঠিকানা",
     "phone": "ফোন নম্বর",
@@ -418,6 +427,15 @@
       "Exchanged": "বিনিময় হয়েছে"
     },
     "exchangedFor": "{summary} এর সাথে বিনিময় হয়েছে"
+  },
+  "pwa": {
+    "installTitle": "Antivaly ইনস্টল করুন",
+    "installDescription": "এক-ট্যাপে অর্ডার এবং লাইভ ট্র্যাকিংয়ের জন্য হোম স্ক্রিনে যোগ করুন।",
+    "installButton": "ইনস্টল করুন",
+    "dismiss": "বাতিল করুন",
+    "appBandTitle": "Antivaly অ্যাপ নিন",
+    "appBandDescription": "অফলাইন ব্রাউজিং, লাইভ অর্ডার ট্র্যাকিং এবং এক-ট্যাপ রিঅর্ডারের জন্য ইনস্টল করুন।",
+    "appBandButton": "অ্যাপ ইনস্টল করুন"
   },
   "trackOrder": {
     "title": "আপনার অর্ডার ট্র্যাক করুন",

@@ -13,7 +13,7 @@ export function DiscountsCard({ currency }: { currency: string }) {
   const t = useTranslations("cart");
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border p-3.5">
+    <div className="flex flex-col gap-3 rounded-2xl border border-border p-3.5">
       <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
         <Tag className="size-4 text-primary" />
         {t("discountsTitle")}

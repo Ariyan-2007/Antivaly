@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, LayoutGrid, ShoppingCart, Heart, User } from "lucide-react";
+import { Home, LayoutGrid, ShoppingCart, MapPinned, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useCartStore } from "@/store/cart-store";
@@ -18,9 +18,12 @@ export function MobileBottomNav() {
     { href: "/products" as const, label: t("allCategories"), icon: LayoutGrid },
     { href: "/cart" as const, label: t("cart"), icon: ShoppingCart, badge: itemCount },
     {
-      href: user ? ("/account/wishlist" as const) : ("/login" as const),
-      label: t("wishlist"),
-      icon: Heart,
+      // A signed-in customer has real order history with a live tracking timeline
+      // (`/account/orders/[orderId]`) — send them there. `/track-order` is the guest-only,
+      // no-auth order-number+email lookup form, so it's the right default for everyone else.
+      href: user ? ("/account/orders" as const) : ("/track-order" as const),
+      label: t("trackOrder"),
+      icon: MapPinned,
     },
     { href: user ? ("/account" as const) : ("/login" as const), label: t("account"), icon: User },
   ];

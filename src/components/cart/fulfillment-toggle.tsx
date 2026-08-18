@@ -41,8 +41,10 @@ export function FulfillmentToggle() {
 
   return (
     <div className="flex flex-col gap-2">
-      <h2 className="text-sm font-semibold text-foreground">{t("fulfillmentMethod")}</h2>
-      <div className="grid grid-cols-2 gap-2">
+      <h2 className="text-xs font-bold tracking-wide text-muted-foreground uppercase">
+        {t("fulfillmentMethod")}
+      </h2>
+      <div className="flex rounded-full border border-border p-0.75">
         {OPTIONS.map((method) => {
           const isActive = cart.fulfillmentMethod === method;
           return (
@@ -52,18 +54,16 @@ export function FulfillmentToggle() {
               onClick={() => handleSelect(method)}
               disabled={isPending}
               className={cn(
-                "flex items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors disabled:opacity-60",
-                isActive
-                  ? "border-primary bg-primary/5 text-primary"
-                  : "border-border text-muted-foreground hover:border-primary/50"
+                "flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold transition-colors disabled:opacity-60",
+                isActive ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-accent"
               )}
             >
               {isPending && !isActive ? (
-                <Loader2 className="size-4 animate-spin" />
+                <Loader2 className="size-3.5 animate-spin" />
               ) : method === "Delivery" ? (
-                <Truck className="size-4" />
+                <Truck className="size-3.5" />
               ) : (
-                <Store className="size-4" />
+                <Store className="size-3.5" />
               )}
               {method === "Delivery" ? t("deliveryOption") : t("pickupOption")}
             </button>

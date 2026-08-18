@@ -6,6 +6,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { BusinessProvider } from "@/components/providers/business-provider";
+import { InstallAppBanner } from "@/components/layout/install-app-banner";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
@@ -118,6 +119,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider>
           <BusinessProvider business={business}>
             <AuthProvider>
+              <InstallAppBanner />
               <SiteHeader business={business} categories={categories} menu={menu} />
               <main className="flex-1 pb-16 md:pb-0">{children}</main>
               <SiteFooter business={business} categories={categories} pages={pages} />

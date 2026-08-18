@@ -11,26 +11,26 @@ export function OrderCard({ order, currency }: { order: OrderResponse; currency:
   const locale = useLocale();
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border p-4">
       <div>
-        <div className="flex items-center gap-2">
-          <p className="font-semibold text-foreground">
-            {t("orderNumber", { number: order.orderNumber ?? order.id.slice(0, 8) })}
-          </p>
-          <OrderStatusBadge status={order.status} />
-        </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm font-bold text-foreground">
+          {t("orderNumber", { number: order.orderNumber ?? order.id.slice(0, 8) })}
+        </p>
+        <p className="text-xs text-muted-foreground">
           {t("placedOn", { date: formatDate(order.placedAt, locale) })}
         </p>
-        <p className="mt-1 text-sm font-medium text-foreground">
+      </div>
+      <OrderStatusBadge status={order.status} />
+      <div className="flex items-center gap-3">
+        <p className="text-sm font-extrabold text-foreground">
           {formatMoney(order.total, currency, locale)}
         </p>
+        <Button
+          variant="outline"
+          size="sm"
+          render={<Link href={orderHref(order.id)}>{t("viewDetails")}</Link>}
+        />
       </div>
-      <Button
-        variant="outline"
-        size="sm"
-        render={<Link href={orderHref(order.id)}>{t("viewDetails")}</Link>}
-      />
     </div>
   );
 }

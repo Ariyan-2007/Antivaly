@@ -28,48 +28,49 @@ export function CartLineItem({ item, currency }: { item: CartItem; currency: str
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-border py-4 last:border-0">
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-foreground">
+    <div className="flex gap-3 rounded-2xl border border-border p-3.5">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <p className="truncate text-sm font-bold text-foreground">
           {item.productName || t("unnamedItem")}
         </p>
         {item.variantSummary && (
           <p className="text-xs text-muted-foreground">{item.variantSummary}</p>
         )}
-        <p className="text-xs text-muted-foreground">{formatMoney(item.unitPrice, currency, locale)}</p>
+        <div className="mt-1.5 flex items-center justify-between">
+          <div className="flex items-center rounded-full border border-border">
+            <button
+              type="button"
+              className="flex size-7 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
+              onClick={() => change(item.quantity - 1)}
+              disabled={isPending}
+              aria-label="Decrease quantity"
+            >
+              <Minus className="size-3.5" />
+            </button>
+            <span className="w-7 text-center text-sm font-bold tabular-nums">{item.quantity}</span>
+            <button
+              type="button"
+              className="flex size-7 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
+              onClick={() => change(item.quantity + 1)}
+              disabled={isPending}
+              aria-label="Increase quantity"
+            >
+              <Plus className="size-3.5" />
+            </button>
+          </div>
+          <p className="text-sm font-extrabold text-foreground">
+            {formatMoney(item.lineTotal, currency, locale)}
+          </p>
+        </div>
       </div>
-      <div className="flex items-center rounded-lg border border-border">
-        <button
-          type="button"
-          className="flex size-8 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
-          onClick={() => change(item.quantity - 1)}
-          disabled={isPending}
-          aria-label="Decrease quantity"
-        >
-          <Minus className="size-3.5" />
-        </button>
-        <span className="w-7 text-center text-sm tabular-nums">{item.quantity}</span>
-        <button
-          type="button"
-          className="flex size-8 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-40"
-          onClick={() => change(item.quantity + 1)}
-          disabled={isPending}
-          aria-label="Increase quantity"
-        >
-          <Plus className="size-3.5" />
-        </button>
-      </div>
-      <p className="w-20 shrink-0 text-right text-sm font-semibold">
-        {formatMoney(item.lineTotal, currency, locale)}
-      </p>
       <button
         type="button"
-        className="shrink-0 text-muted-foreground hover:text-destructive disabled:opacity-40"
+        className="shrink-0 self-start text-muted-foreground hover:text-destructive disabled:opacity-40"
         onClick={() => change(0)}
         disabled={isPending}
         aria-label={t("remove")}
       >
-        {isPending ? <Loader2 className="size-4 animate-spin" /> : <X className="size-4" />}
+        {isPending ? <Loader2 className="size-4 animate-spin" /> : <X className="size-4.5" />}
       </button>
     </div>
   );

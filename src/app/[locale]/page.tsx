@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { HeroBanner } from "@/components/shop/hero-banner";
+import { TrustStatBand } from "@/components/shop/trust-stat-band";
+import { AppInstallBand } from "@/components/shop/app-install-band";
 import { ProductGrid } from "@/components/shop/product-grid";
 import { SectionHeading } from "@/components/shop/section-heading";
 import { getBusiness, getCategories, getProducts, getBanners } from "@/lib/api/catalog";
@@ -122,6 +124,8 @@ export default async function HomePage({
 
       <HeroBanner business={business} banners={banners} />
 
+      <TrustStatBand deliveryModuleEnabled={business.deliveryModuleEnabled} />
+
       {isEmpty ? (
         <p className="py-16 text-center text-sm text-muted-foreground">{t("noProducts")}</p>
       ) : (
@@ -169,6 +173,8 @@ export default async function HomePage({
           )}
         </>
       )}
+
+      <AppInstallBand />
     </div>
   );
 }

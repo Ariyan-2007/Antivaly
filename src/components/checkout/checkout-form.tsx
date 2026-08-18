@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
-import { Loader2, Truck, Store, Check, AlertTriangle } from "lucide-react";
+import { Loader2, Check, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -331,15 +331,14 @@ export function CheckoutForm({
   const cartBusy = mutatingCount > 0;
   const notReady = cartBusy || previewLoading || addressesLoading;
 
+  const cardClass = "flex flex-col gap-4 rounded-2xl border border-border p-5";
+
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-4 rounded-xl border border-border p-5 lg:col-span-2"
-      >
+    <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
+      <div className="flex flex-col gap-5 lg:col-span-2">
         {isGuest && (
-          <>
-            <h2 className="text-lg font-semibold text-foreground">{t("guestDetails")}</h2>
+          <div className={cardClass}>
+            <p className="text-sm font-extrabold text-foreground">{t("guestDetails")}</p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="guestName">{t("guestName")}</Label>
@@ -357,129 +356,133 @@ export function CheckoutForm({
               <Label htmlFor="guestPhone">{t("guestPhone")}</Label>
               <Input id="guestPhone" type="tel" {...register("guestPhone")} />
             </div>
-          </>
+          </div>
         )}
 
         {business.deliveryModuleEnabled && (
-          <>
+          <div className={cardClass}>
             <FulfillmentToggle />
-            <div className="border-t border-border" />
-          </>
+          </div>
         )}
 
-        <h2 className="text-lg font-semibold text-foreground">
-          {isPickup ? t("pickupDetailsTitle") : t("shippingAddress")}
-        </h2>
-        {isPickup && <p className="-mt-2 text-xs text-muted-foreground">{t("pickupAddressNote")}</p>}
+        <div className={cardClass}>
+          <p className="text-sm font-extrabold text-foreground">
+            {isPickup ? t("pickupDetailsTitle") : t("shippingAddress")}
+          </p>
+          {isPickup && <p className="-mt-2 text-xs text-muted-foreground">{t("pickupAddressNote")}</p>}
 
-        {savedAddresses.length > 0 && (
-          <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-muted-foreground">{t("useSavedAddress")}</span>
-            <div className="flex flex-wrap gap-2">
-              {savedAddresses.map((addr) => (
+          {savedAddresses.length > 0 && (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium text-muted-foreground">{t("useSavedAddress")}</span>
+              <div className="flex flex-wrap gap-2">
+                {savedAddresses.map((addr) => (
+                  <button
+                    key={addr.id}
+                    type="button"
+                    onClick={() => selectSavedAddress(addr)}
+                    className={cn(
+                      "rounded-lg border px-3 py-1.5 text-left text-xs transition-colors",
+                      selectedAddressId === addr.id
+                        ? "border-primary bg-primary/5 ring-1 ring-primary"
+                        : "border-border hover:border-primary/50"
+                    )}
+                  >
+                    <span className="block font-medium text-foreground">{addr.label}</span>
+                    <span className="text-muted-foreground">{addr.city}</span>
+                  </button>
+                ))}
                 <button
-                  key={addr.id}
                   type="button"
-                  onClick={() => selectSavedAddress(addr)}
+                  onClick={clearToNewAddress}
                   className={cn(
                     "rounded-lg border px-3 py-1.5 text-left text-xs transition-colors",
-                    selectedAddressId === addr.id
+                    selectedAddressId === null
                       ? "border-primary bg-primary/5 ring-1 ring-primary"
                       : "border-border hover:border-primary/50"
                   )}
                 >
-                  <span className="block font-medium text-foreground">{addr.label}</span>
-                  <span className="text-muted-foreground">{addr.city}</span>
+                  {t("enterNewAddress")}
                 </button>
-              ))}
-              <button
-                type="button"
-                onClick={clearToNewAddress}
-                className={cn(
-                  "rounded-lg border px-3 py-1.5 text-left text-xs transition-colors",
-                  selectedAddressId === null
-                    ? "border-primary bg-primary/5 ring-1 ring-primary"
-                    : "border-border hover:border-primary/50"
-                )}
-              >
-                {t("enterNewAddress")}
-              </button>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="col-span-2 flex flex-col gap-1.5">
+              <Label htmlFor="label">{t("addressLabel")}</Label>
+              <Input id="label" placeholder={t("addressLabelPlaceholder")} {...register("label")} />
+              {errors.label && <p className="text-xs text-destructive">{errors.label.message}</p>}
+            </div>
+
+            <div className="col-span-2 flex flex-col gap-1.5">
+              <Label htmlFor="phone">{t("phone")}</Label>
+              <Input id="phone" type="tel" {...register("phone")} />
+              {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
+            </div>
+
+            <div className="col-span-2 flex flex-col gap-1.5">
+              <Label htmlFor="line1">{t("line1")}</Label>
+              <Input id="line1" {...register("line1")} />
+              {errors.line1 && <p className="text-xs text-destructive">{errors.line1.message}</p>}
+            </div>
+
+            <div className="col-span-2 flex flex-col gap-1.5">
+              <Label htmlFor="line2">{t("line2")}</Label>
+              <Input id="line2" {...register("line2")} />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="city">{t("city")}</Label>
+              <Input id="city" {...register("city")} />
+              {errors.city && <p className="text-xs text-destructive">{errors.city.message}</p>}
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="state">{t("state")}</Label>
+              <Input id="state" {...register("state")} />
+              {errors.state && <p className="text-xs text-destructive">{errors.state.message}</p>}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="postalCode">{t("postalCode")}</Label>
+              <Input id="postalCode" {...register("postalCode")} />
+              {errors.postalCode && (
+                <p className="text-xs text-destructive">{errors.postalCode.message}</p>
+              )}
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="country">{t("country")}</Label>
+              <Input id="country" {...register("country")} />
+              {errors.country && <p className="text-xs text-destructive">{errors.country.message}</p>}
             </div>
           </div>
-        )}
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="label">{t("addressLabel")}</Label>
-          <Input id="label" placeholder={t("addressLabelPlaceholder")} {...register("label")} />
-          {errors.label && <p className="text-xs text-destructive">{errors.label.message}</p>}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="line1">{t("line1")}</Label>
-          <Input id="line1" {...register("line1")} />
-          {errors.line1 && <p className="text-xs text-destructive">{errors.line1.message}</p>}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="line2">{t("line2")}</Label>
-          <Input id="line2" {...register("line2")} />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="city">{t("city")}</Label>
-            <Input id="city" {...register("city")} />
-            {errors.city && <p className="text-xs text-destructive">{errors.city.message}</p>}
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="state">{t("state")}</Label>
-            <Input id="state" {...register("state")} />
-            {errors.state && <p className="text-xs text-destructive">{errors.state.message}</p>}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="postalCode">{t("postalCode")}</Label>
-            <Input id="postalCode" {...register("postalCode")} />
-            {errors.postalCode && (
-              <p className="text-xs text-destructive">{errors.postalCode.message}</p>
+          <Controller
+            control={control}
+            name="isDefault"
+            render={({ field }) => (
+              <label className="flex items-center gap-2 text-sm text-foreground">
+                <Checkbox checked={field.value} onCheckedChange={(v) => field.onChange(!!v)} />
+                {t("setAsDefault")}
+              </label>
             )}
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="country">{t("country")}</Label>
-            <Input id="country" {...register("country")} />
-            {errors.country && <p className="text-xs text-destructive">{errors.country.message}</p>}
-          </div>
-        </div>
+          />
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="phone">{t("phone")}</Label>
-          <Input id="phone" type="tel" {...register("phone")} />
-          {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
-        </div>
-
-        <Controller
-          control={control}
-          name="isDefault"
-          render={({ field }) => (
+          {user && !selectedAddressId && (
             <label className="flex items-center gap-2 text-sm text-foreground">
-              <Checkbox checked={field.value} onCheckedChange={(v) => field.onChange(!!v)} />
-              {t("setAsDefault")}
+              <Checkbox checked={saveNewAddress} onCheckedChange={(v) => setSaveNewAddress(!!v)} />
+              {t("saveAddressForNextTime")}
             </label>
           )}
-        />
 
-        {user && !selectedAddressId && (
-          <label className="flex items-center gap-2 text-sm text-foreground">
-            <Checkbox checked={saveNewAddress} onCheckedChange={(v) => setSaveNewAddress(!!v)} />
-            {t("saveAddressForNextTime")}
-          </label>
-        )}
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="customerNote">{t("customerNote")}</Label>
+            <Textarea id="customerNote" rows={2} {...register("customerNote")} />
+          </div>
+        </div>
 
         {showShippingOptions && (
-          <div className="flex flex-col gap-2 border-t border-border pt-4">
-            <h2 className="text-sm font-semibold text-foreground">{t("shippingMethod")}</h2>
+          <div className={cardClass}>
+            <p className="text-sm font-extrabold text-foreground">{t("shippingMethod")}</p>
             <div className="flex flex-col gap-2">
               {shippingOptions.map((option) => {
                 const isSelected = shippingRateId
@@ -521,19 +524,42 @@ export function CheckoutForm({
           </div>
         )}
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="customerNote">{t("customerNote")}</Label>
-          <Textarea id="customerNote" rows={2} {...register("customerNote")} />
+        <div className={cardClass}>
+          <DiscountsCard currency={currency} />
         </div>
 
-        <Button type="submit" size="lg" disabled={isPending || notReady} className="mt-2">
+        <div className={cardClass}>
+          <p className="text-sm font-extrabold text-foreground">{t("paymentMethod")}</p>
+          <div className="flex items-center gap-2.5 rounded-xl border border-primary/15 bg-primary/6 p-3">
+            <span className="flex size-4.5 shrink-0 items-center justify-center rounded-full border-[5px] border-primary" />
+            {isPickup ? (
+              <div>
+                <p className="text-sm font-bold text-foreground">{t("pickupTitle")}</p>
+                <p className="text-xs text-muted-foreground">{t("pickupDescription")}</p>
+              </div>
+            ) : (
+              <div>
+                <p className="text-sm font-bold text-foreground">{t("codTitle")}</p>
+                <p className="text-xs text-muted-foreground">{t("codDescription")}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          size="lg"
+          className="rounded-full lg:hidden"
+          disabled={isPending || notReady}
+          onClick={handleSubmit(onSubmit)}
+        >
           {(isPending || notReady) && <Loader2 className="size-4 animate-spin" />}
           {isPending ? t("placingOrder") : notReady ? t("pleaseWait") : t("placeOrder")}
         </Button>
-      </form>
+      </div>
 
-      <div className="flex h-fit flex-col gap-4 rounded-xl border border-border p-5">
-        <h2 className="text-lg font-semibold text-foreground">{t("orderSummary")}</h2>
+      <div className="flex h-fit flex-col gap-4 rounded-2xl border border-border p-5 lg:sticky lg:top-22">
+        <p className="text-sm font-extrabold text-foreground">{t("orderSummary")}</p>
 
         <div className="flex flex-col gap-1.5 text-sm">
           {cart.items.map((item) => {
@@ -567,10 +593,6 @@ export function CheckoutForm({
               {stockConflict}
             </p>
           )}
-        </div>
-
-        <div className="border-t border-border pt-3">
-          <DiscountsCard currency={currency} />
         </div>
 
         <div className="flex flex-col gap-1.5 border-t border-border pt-3 text-sm">
@@ -621,7 +643,7 @@ export function CheckoutForm({
               <span>-{formatMoney(storeCreditApplied, currency, locale)}</span>
             </div>
           )}
-          <div className="flex justify-between pt-1 text-base font-bold text-foreground">
+          <div className="flex justify-between pt-1 text-base font-extrabold text-foreground">
             <span>{tc("total")}</span>
             <span>{formatMoney(runningTotal, currency, locale)}</span>
           </div>
@@ -633,28 +655,16 @@ export function CheckoutForm({
           )}
         </div>
 
-        <div className="flex flex-col gap-2 border-t border-border pt-3">
-          <h2 className="text-sm font-semibold text-foreground">{t("paymentMethod")}</h2>
-          <div className="flex items-start gap-2 rounded-lg bg-primary/10 p-3">
-            {isPickup ? (
-              <>
-                <Store className="mt-0.5 size-4 shrink-0 text-primary" />
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{t("pickupTitle")}</p>
-                  <p className="text-xs text-muted-foreground">{t("pickupDescription")}</p>
-                </div>
-              </>
-            ) : (
-              <>
-                <Truck className="mt-0.5 size-4 shrink-0 text-primary" />
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{t("codTitle")}</p>
-                  <p className="text-xs text-muted-foreground">{t("codDescription")}</p>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+        <Button
+          type="button"
+          size="lg"
+          className="hidden rounded-full lg:flex"
+          disabled={isPending || notReady}
+          onClick={handleSubmit(onSubmit)}
+        >
+          {(isPending || notReady) && <Loader2 className="size-4 animate-spin" />}
+          {isPending ? t("placingOrder") : notReady ? t("pleaseWait") : t("placeOrder")}
+        </Button>
       </div>
     </div>
   );

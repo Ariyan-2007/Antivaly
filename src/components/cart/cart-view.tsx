@@ -44,16 +44,21 @@ export function CartView({ currency }: { currency: string }) {
   const discounts = cart.discounts ?? [];
 
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-      <div className="rounded-xl border border-border px-4 lg:col-span-2">
+    <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
+      <div className="flex flex-col gap-3 lg:col-span-2">
         {cart.items.map((item) => (
           <CartLineItem key={`${item.productId}-${item.variantId ?? ""}`} item={item} currency={currency} />
         ))}
+
+        <DiscountsCard currency={currency} />
       </div>
-      <div className="flex h-fit flex-col gap-4 rounded-xl border border-border p-5">
+
+      <div className="flex h-fit flex-col gap-4 rounded-2xl border border-border p-5 lg:sticky lg:top-22">
+        <p className="text-sm font-extrabold text-foreground">{t("orderSummary")}</p>
+
         <FulfillmentToggle />
 
-        <div className="flex flex-col gap-1.5 text-sm">
+        <div className="flex flex-col gap-2 text-sm">
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">{tc("subtotal")}</span>
             <span className="font-semibold">{formatMoney(cart.subtotal, currency, locale)}</span>
@@ -82,25 +87,24 @@ export function CartView({ currency }: { currency: string }) {
               <span>-{formatMoney(cart.storeCreditApplied, currency, locale)}</span>
             </div>
           )}
-          <div className="flex items-center justify-between border-t border-border pt-1.5 text-base font-bold text-foreground">
+          <div className="flex items-center justify-between border-t border-border pt-2 text-base font-extrabold text-foreground">
             <span>{cart.amountDue !== cart.subtotal ? t("amountDue") : t("estimatedTotal")}</span>
             <span>{formatMoney(cart.amountDue, currency, locale)}</span>
           </div>
         </div>
 
-        <DiscountsCard currency={currency} />
-
-        <p className="text-xs text-muted-foreground">{t("shippingTaxNote")}</p>
-
         <Button
           size="lg"
           type="button"
+          className="rounded-full"
           disabled={mutatingCount > 0}
           onClick={() => router.push("/checkout")}
         >
           {mutatingCount > 0 && <Loader2 className="size-4 animate-spin" />}
           {t("proceedToCheckout")}
         </Button>
+
+        <p className="text-center text-xs text-muted-foreground">{t("shippingTaxNote")}</p>
       </div>
     </div>
   );
