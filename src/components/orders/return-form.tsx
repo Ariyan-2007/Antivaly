@@ -17,7 +17,7 @@ import {
 import { useRouter } from "@/i18n/navigation";
 import { browserFetch } from "@/lib/api/browser";
 import { ApiError } from "@/lib/api/client";
-import type { CreateReturnRequest, OrderItem, ReturnReason, ReturnResolution } from "@/types/api";
+import type { CreateReturnRequest, OrderItem, ProductVariantResponse, ReturnReason, ReturnResolution } from "@/types/api";
 
 const REASONS: ReturnReason[] = [
   "Damaged",
@@ -29,7 +29,19 @@ const REASONS: ReturnReason[] = [
 ];
 const RESOLUTIONS: ReturnResolution[] = ["Refund", "Exchange", "StoreCredit"];
 
-export function ReturnForm({ orderId, items }: { orderId: string; items: OrderItem[] }) {
+/** What an Exchange picker needs from a returnable line's product — its current effective price
+ * (the fallback when a variant has no `priceOverride`) and its full variant list. */
+export type ExchangeableProduct = { effectivePrice: number; variants: ProductVariantResponse[] };
+
+export function ReturnForm({
+  orderId,
+  items,
+  exchangeableProducts,
+}: {
+  orderId: string;
+  items: OrderItem[];
+  exchangeableProducts: Record<string, ExchangeableProduct>;
+}) {
   const t = useTranslations("returns");
   const tc = useTranslations("common");
   const router = useRouter();
@@ -40,18 +52,26 @@ export function ReturnForm({ orderId, items }: { orderId: string; items: OrderIt
   const [reason, setReason] = useState<ReturnReason>("ChangedMind");
   const [resolution, setResolution] = useState<ReturnResolution>("Refund");
   const [reasonNote, setReasonNote] = useState("");
+  const [desiredVariantIds, setDesiredVariantIds] = useState<Record<string, string>>({});
 
   function keyOf(item: OrderItem): string {
     return `${item.productId}-${item.variantId ?? ""}`;
   }
 
+  // Exchange is a same-price swap only (§9.49, mirrors the backend's own check exactly so a
+  // customer never picks an option the server will just 409 back) — only a variant priced the
+  // same as what was actually paid, and not the one already delivered, is offerable.
+  function eligibleVariants(item: OrderItem): ProductVariantResponse[] {
+    const product = exchangeableProducts[item.productId];
+    if (!product) return [];
+    return product.variants.filter(
+      (v) => v.id !== item.variantId && (v.priceOverride ?? product.effectivePrice) === item.unitPrice
+    );
+  }
+
   function onSubmit() {
     const selectedItems = returnable
-      .map((item) => ({
-        productId: item.productId,
-        variantId: item.variantId,
-        quantity: quantities[keyOf(item)] ?? 0,
-      }))
+      .map((item) => ({ item, quantity: quantities[keyOf(item)] ?? 0 }))
       .filter((i) => i.quantity > 0);
 
     if (selectedItems.length === 0) {
@@ -59,7 +79,26 @@ export function ReturnForm({ orderId, items }: { orderId: string; items: OrderIt
       return;
     }
 
-    const body: CreateReturnRequest = { orderId, items: selectedItems, reason, reasonNote, resolution };
+    if (resolution === "Exchange") {
+      const missing = selectedItems.some(({ item }) => !desiredVariantIds[keyOf(item)]);
+      if (missing) {
+        toast.error(t("selectDesiredVariant"));
+        return;
+      }
+    }
+
+    const body: CreateReturnRequest = {
+      orderId,
+      items: selectedItems.map(({ item, quantity }) => ({
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity,
+        desiredVariantId: resolution === "Exchange" ? desiredVariantIds[keyOf(item)] : undefined,
+      })),
+      reason,
+      reasonNote,
+      resolution,
+    };
 
     startTransition(async () => {
       try {
@@ -72,6 +111,10 @@ export function ReturnForm({ orderId, items }: { orderId: string; items: OrderIt
     });
   }
 
+  const selectedReturnable = returnable.filter((item) => (quantities[keyOf(item)] ?? 0) > 0);
+  const exchangeBlocked =
+    resolution === "Exchange" && selectedReturnable.some((item) => eligibleVariants(item).length === 0);
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-3">
@@ -79,31 +122,60 @@ export function ReturnForm({ orderId, items }: { orderId: string; items: OrderIt
         {returnable.map((item) => {
           const max = item.quantity - item.refundedQuantity;
           const key = keyOf(item);
+          const wantsExchange = resolution === "Exchange" && (quantities[key] ?? 0) > 0;
+          const variantOptions = wantsExchange ? eligibleVariants(item) : [];
           return (
-            <div key={key} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-foreground">
-                  {item.productName || tc("unnamedItem")}
-                </p>
-                {item.variantSummary && (
-                  <p className="text-xs text-muted-foreground">{item.variantSummary}</p>
-                )}
+            <div key={key} className="flex flex-col gap-2.5 rounded-lg border border-border p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {item.productName || tc("unnamedItem")}
+                  </p>
+                  {item.variantSummary && (
+                    <p className="text-xs text-muted-foreground">{item.variantSummary}</p>
+                  )}
+                </div>
+                <Select
+                  value={String(quantities[key] ?? 0)}
+                  onValueChange={(v) => setQuantities((q) => ({ ...q, [key]: Number(v) }))}
+                >
+                  <SelectTrigger size="sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: max + 1 }).map((_, n) => (
+                      <SelectItem key={n} value={String(n)}>
+                        {n}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <Select
-                value={String(quantities[key] ?? 0)}
-                onValueChange={(v) => setQuantities((q) => ({ ...q, [key]: Number(v) }))}
-              >
-                <SelectTrigger size="sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: max + 1 }).map((_, n) => (
-                    <SelectItem key={n} value={String(n)}>
-                      {n}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+
+              {wantsExchange && (
+                <div className="flex flex-col gap-1.5 border-t border-border pt-2.5">
+                  <Label className="text-xs">{t("desiredVariant")}</Label>
+                  {variantOptions.length > 0 ? (
+                    <Select
+                      value={desiredVariantIds[key] ?? ""}
+                      onValueChange={(v) => v && setDesiredVariantIds((d) => ({ ...d, [key]: v }))}
+                    >
+                      <SelectTrigger size="sm">
+                        <SelectValue placeholder={t("desiredVariantPlaceholder")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {variantOptions.map((v) => (
+                          <SelectItem key={v.id} value={v.id}>
+                            {v.attributeSummary || v.sku || v.id}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <p className="text-xs text-destructive">{t("noEligibleVariant")}</p>
+                  )}
+                </div>
+              )}
             </div>
           );
         })}
@@ -146,7 +218,7 @@ export function ReturnForm({ orderId, items }: { orderId: string; items: OrderIt
         </Select>
       </div>
 
-      <Button onClick={onSubmit} disabled={isPending} size="lg">
+      <Button onClick={onSubmit} disabled={isPending || exchangeBlocked} size="lg">
         {isPending && <Loader2 className="size-4 animate-spin" />}
         {t("submitRequest")}
       </Button>

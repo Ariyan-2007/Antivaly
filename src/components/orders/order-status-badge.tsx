@@ -10,6 +10,8 @@ const STATUS_VARIANT: Record<OrderStatus, "default" | "secondary" | "destructive
   Delivered: "default",
   Cancelled: "destructive",
   Refunded: "destructive",
+  AwaitingPickup: "default",
+  PickedUp: "default",
 };
 
 const PAYMENT_VARIANT: Record<PaymentStatus, "default" | "secondary" | "destructive" | "outline"> = {

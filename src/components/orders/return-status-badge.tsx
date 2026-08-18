@@ -9,6 +9,7 @@ const VARIANT: Record<ReturnStatus, "default" | "secondary" | "destructive" | "o
   Received: "secondary",
   Refunded: "default",
   Cancelled: "destructive",
+  Exchanged: "default",
 };
 
 export function ReturnStatusBadge({ status }: { status: ReturnStatus }) {

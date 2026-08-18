@@ -13,9 +13,14 @@ import type { BusinessResponse, OrderResponse, OrderStatus } from "@/types/api";
 const CANCELLABLE = new Set<OrderStatus>(["PendingPayment", "Processing", "Confirmed"]);
 const MS_PER_DAY = 86_400_000;
 
+// A Pickup order's terminal happy-path status is PickedUp, not Delivered — it never enters
+// Delivered at all (§9.47, OrderStatusExtensions.IsFulfilled on the backend treats the two the
+// same way for exactly this kind of downstream check).
+const FULFILLED: ReadonlySet<OrderStatus> = new Set(["Delivered", "PickedUp"]);
+
 export function isReturnEligible(order: OrderResponse, business: BusinessResponse): boolean {
-  if (order.status !== "Delivered" || business.returnWindowDays <= 0) return false;
-  const deliveredEvent = (order.statusHistory ?? []).find((e) => e.status === "Delivered");
+  if (!FULFILLED.has(order.status) || business.returnWindowDays <= 0) return false;
+  const deliveredEvent = (order.statusHistory ?? []).find((e) => FULFILLED.has(e.status));
   const since = new Date(deliveredEvent?.timestamp ?? order.placedAt).getTime();
   if (Number.isNaN(since)) return true;
   const daysSince = (Date.now() - since) / MS_PER_DAY;

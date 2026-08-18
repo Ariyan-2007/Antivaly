@@ -18,18 +18,14 @@ import { ApiError } from "@/lib/api/client";
 import { useCartStore } from "@/store/cart-store";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useBusiness } from "@/components/providers/business-provider";
+import { DiscountsCard } from "@/components/cart/discounts-card";
+import { FulfillmentToggle } from "@/components/cart/fulfillment-toggle";
 import { CART_TOKEN_HEADER, getGuestToken } from "@/lib/cart/guest-token";
 import { getLastCheckoutAddress, setLastCheckoutAddress } from "@/lib/checkout/last-address-cache";
 import { orderHref } from "@/lib/routes";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type {
-  AddressResponse,
-  CheckoutRequest,
-  CheckoutPreviewResponse,
-  OrderResponse,
-  FulfillmentMethod,
-} from "@/types/api";
+import type { AddressResponse, CheckoutRequest, CheckoutPreviewResponse, OrderResponse } from "@/types/api";
 import type { NormalizedCart } from "@/store/cart-store";
 
 const schema = z.object({
@@ -87,6 +83,11 @@ export function CheckoutForm({
   const [savedAddresses, setSavedAddresses] = useState<AddressResponse[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [saveNewAddress, setSaveNewAddress] = useState(false);
+  // A signed-in customer's default address fills the form asynchronously (below) — without this,
+  // a fast customer could hit Place Order while the form is still blank and submit an empty
+  // shipping address instead of the one they expected.
+  const [addressesLoading, setAddressesLoading] = useState(false);
+  const mutatingCount = useCartStore((s) => s.mutatingCount);
 
   function fillFromAddress(addr: {
     label: string | null; line1: string | null; line2: string | null; city: string | null;
@@ -114,6 +115,7 @@ export function CheckoutForm({
       if (cached) fillFromAddress(cached);
       return;
     }
+    setAddressesLoading(true);
     browserFetch<AddressResponse[]>("/api/shop/account/addresses")
       .then((addrs) => {
         const list = Array.isArray(addrs) ? addrs : [];
@@ -124,7 +126,8 @@ export function CheckoutForm({
           fillFromAddress(preferred);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setAddressesLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
@@ -142,10 +145,17 @@ export function CheckoutForm({
   const isGuest = !user;
   const guestBlocked = isGuest && !business.guestCheckoutEnabled;
 
-  const [fulfillmentMethod, setFulfillmentMethod] = useState<FulfillmentMethod>("Delivery");
+  // Delivery vs Pickup now lives on the cart itself (blueprint §6.3/§9.44, via FulfillmentToggle
+  // below) — read it straight off `cart` instead of tracking a separate local copy that could
+  // drift from what was actually set server-side.
+  const fulfillmentMethod = cart.fulfillmentMethod;
+  const isPickup = fulfillmentMethod === "Pickup" || fulfillmentMethod === "Digital";
+
   const [shippingRateId, setShippingRateId] = useState<string | null>(null);
-  const [useStoreCredit, setUseStoreCredit] = useState(false);
-  const [giftCardCodes, setGiftCardCodes] = useState("");
+  // A previously picked rate may not exist under the new fulfillment method's option list.
+  useEffect(() => {
+    setShippingRateId(null);
+  }, [fulfillmentMethod]);
 
   const [preview, setPreview] = useState<CheckoutPreviewResponse | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -172,18 +182,25 @@ export function CheckoutForm({
         phone: address.phone || null,
         isDefault: address.isDefault,
       },
+      // Send the exact same fulfillment method already set on the cart (blueprint §9.44) — the
+      // cart's preview already showed the customer this choice, so checkout can't silently
+      // default back to "Delivery" and bill a fee they weren't shown.
       fulfillmentMethod: business.deliveryModuleEnabled ? fulfillmentMethod : undefined,
       shippingRateId: shippingRateId || undefined,
-      useStoreCredit: user ? useStoreCredit : undefined,
-      giftCardCodes: giftCardCodes.trim()
-        ? giftCardCodes.split(",").map((c) => c.trim()).filter(Boolean)
-        : undefined,
+      // Coupon/promotion/gift-card/store-credit are all applied directly to the server-side
+      // cart now (blueprint §6.6/§9.43, via DiscountsCard below) — checkout reads them straight
+      // off `cart` rather than tracking a separate local copy that could drift.
+      useStoreCredit: user ? cart.useStoreCredit : undefined,
+      giftCardCodes: cart.giftCardCodes && cart.giftCardCodes.length > 0 ? cart.giftCardCodes : undefined,
       customerNote: address.customerNote || undefined,
       guestEmail: isGuest ? address.guestEmail || null : undefined,
       guestPhone: isGuest ? address.guestPhone || null : undefined,
       guestName: isGuest ? address.guestName || null : undefined,
     };
   }
+
+  const promotionCodesKey = (cart.promotionCodes ?? []).join(",");
+  const giftCardCodesKey = (cart.giftCardCodes ?? []).join(",");
 
   useEffect(() => {
     if (guestBlocked) return;
@@ -215,8 +232,10 @@ export function CheckoutForm({
     address.country,
     fulfillmentMethod,
     shippingRateId,
-    useStoreCredit,
-    giftCardCodes,
+    cart.couponCode,
+    promotionCodesKey,
+    giftCardCodesKey,
+    cart.useStoreCredit,
     guestBlocked,
   ]);
 
@@ -283,7 +302,34 @@ export function CheckoutForm({
   }
 
   const taxDisplayName = business.tax.displayName || tc("tax");
-  const showShippingOptions = (preview?.shippingOptions.length ?? 0) > 0;
+
+  // Delivery fee and shipping options are resolvable the moment a fulfillment method is picked
+  // (blueprint §9.44) — no address needed. Prefer preview's numbers once an address is entered
+  // (it may refine per-zone), but never show a blank/loading state before that.
+  const shippingOptions = preview?.shippingOptions.length ? preview.shippingOptions : cart.shippingOptions;
+  const shippingMethodName = preview?.shippingMethodName ?? cart.shippingMethodName;
+  const showShippingOptions = !isPickup && shippingOptions.length > 0;
+
+  const subtotal = preview?.subtotal ?? cart.subtotal;
+  const discountRows = preview?.discounts ?? cart.discounts ?? [];
+  const deliveryFee = preview?.deliveryFee ?? cart.deliveryFee;
+  const giftCardTotal = preview?.giftCardTotal ?? cart.giftCardTotal;
+  // Pre-tax running total (what preview.total lands on once tax is known; cart.amountDue already
+  // is subtotal - discounts + delivery - gift cards - credit before that point, per §9.44).
+  const runningTotal = preview?.total ?? cart.amountDue;
+  const amountDueFinal = preview?.amountDue ?? cart.amountDue;
+  // CheckoutPreviewResponse has no discrete "amount of store credit used" field — derive it the
+  // same way the total is broken down: total - giftCardTotal - amountDue.
+  const storeCreditApplied = preview
+    ? Math.max(0, preview.total - preview.giftCardTotal - preview.amountDue)
+    : cart.storeCreditApplied;
+
+  // The order button stays inert until everything it depends on has actually settled: a coupon/
+  // gift-card/fulfillment change still writing to the cart elsewhere on this page, the tax/total
+  // preview mid-recalculation, or (for a signed-in customer) their saved address still loading —
+  // submitting through any of these would place an order against numbers the customer never saw.
+  const cartBusy = mutatingCount > 0;
+  const notReady = cartBusy || previewLoading || addressesLoading;
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -314,7 +360,17 @@ export function CheckoutForm({
           </>
         )}
 
-        <h2 className="text-lg font-semibold text-foreground">{t("shippingAddress")}</h2>
+        {business.deliveryModuleEnabled && (
+          <>
+            <FulfillmentToggle />
+            <div className="border-t border-border" />
+          </>
+        )}
+
+        <h2 className="text-lg font-semibold text-foreground">
+          {isPickup ? t("pickupDetailsTitle") : t("shippingAddress")}
+        </h2>
+        {isPickup && <p className="-mt-2 text-xs text-muted-foreground">{t("pickupAddressNote")}</p>}
 
         {savedAddresses.length > 0 && (
           <div className="flex flex-col gap-1.5">
@@ -421,38 +477,14 @@ export function CheckoutForm({
           </label>
         )}
 
-        {business.deliveryModuleEnabled && (
-          <div className="flex flex-col gap-2 border-t border-border pt-4">
-            <h2 className="text-sm font-semibold text-foreground">{t("fulfillmentMethod")}</h2>
-            <div className="grid grid-cols-2 gap-2">
-              {(["Delivery", "Pickup"] as const).map((method) => (
-                <button
-                  key={method}
-                  type="button"
-                  onClick={() => setFulfillmentMethod(method)}
-                  className={cn(
-                    "flex items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
-                    fulfillmentMethod === method
-                      ? "border-primary bg-primary/5 text-primary"
-                      : "border-border text-muted-foreground hover:border-primary/50"
-                  )}
-                >
-                  {method === "Delivery" ? <Truck className="size-4" /> : <Store className="size-4" />}
-                  {method === "Delivery" ? t("deliveryOption") : t("pickupOption")}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {showShippingOptions && (
           <div className="flex flex-col gap-2 border-t border-border pt-4">
             <h2 className="text-sm font-semibold text-foreground">{t("shippingMethod")}</h2>
             <div className="flex flex-col gap-2">
-              {preview!.shippingOptions.map((option) => {
+              {shippingOptions.map((option) => {
                 const isSelected = shippingRateId
                   ? shippingRateId === option.rateId
-                  : option.name === preview!.shippingMethodName;
+                  : option.name === shippingMethodName;
                 return (
                   <button
                     key={option.rateId}
@@ -489,38 +521,14 @@ export function CheckoutForm({
           </div>
         )}
 
-        {user && (
-          <div className="flex flex-col gap-2 border-t border-border pt-4">
-            <label className="flex items-center gap-2 text-sm text-foreground">
-              <Checkbox checked={useStoreCredit} onCheckedChange={(v) => setUseStoreCredit(!!v)} />
-              {t("useStoreCredit")}
-              {preview && preview.storeCreditAvailable > 0 && (
-                <span className="text-xs text-muted-foreground">
-                  ({formatMoney(preview.storeCreditAvailable, currency, locale)} {t("available")})
-                </span>
-              )}
-            </label>
-          </div>
-        )}
-
-        <div className="flex flex-col gap-1.5 border-t border-border pt-4">
-          <Label htmlFor="giftCardCodes">{t("giftCardCodes")}</Label>
-          <Input
-            id="giftCardCodes"
-            placeholder={t("giftCardCodesPlaceholder")}
-            value={giftCardCodes}
-            onChange={(e) => setGiftCardCodes(e.target.value)}
-          />
-        </div>
-
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="customerNote">{t("customerNote")}</Label>
           <Textarea id="customerNote" rows={2} {...register("customerNote")} />
         </div>
 
-        <Button type="submit" size="lg" disabled={isPending} className="mt-2">
-          {isPending && <Loader2 className="size-4 animate-spin" />}
-          {isPending ? t("placingOrder") : t("placeOrder")}
+        <Button type="submit" size="lg" disabled={isPending || notReady} className="mt-2">
+          {(isPending || notReady) && <Loader2 className="size-4 animate-spin" />}
+          {isPending ? t("placingOrder") : notReady ? t("pleaseWait") : t("placeOrder")}
         </Button>
       </form>
 
@@ -561,31 +569,29 @@ export function CheckoutForm({
           )}
         </div>
 
-        {previewLoading && !preview ? (
-          <div className="flex justify-center py-6">
-            <Loader2 className="size-5 animate-spin text-muted-foreground" />
+        <div className="border-t border-border pt-3">
+          <DiscountsCard currency={currency} />
+        </div>
+
+        <div className="flex flex-col gap-1.5 border-t border-border pt-3 text-sm">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">{tc("subtotal")}</span>
+            <span>{formatMoney(subtotal, currency, locale)}</span>
           </div>
-        ) : preview ? (
-          <div className="flex flex-col gap-1.5 border-t border-border pt-3 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{tc("subtotal")}</span>
-              <span>{formatMoney(preview.subtotal, currency, locale)}</span>
+          {discountRows.map((d, i) => (
+            <div key={i} className="flex justify-between text-primary">
+              <span>{d.label || tc("discount")}</span>
+              <span>-{formatMoney(d.amount, currency, locale)}</span>
             </div>
-            {preview.discounts.map((d, i) => (
-              <div key={i} className="flex justify-between text-primary">
-                <span>{d.label || tc("discount")}</span>
-                <span>-{formatMoney(d.amount, currency, locale)}</span>
-              </div>
-            ))}
-            {business.deliveryModuleEnabled && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{tc("deliveryFee")}</span>
-                <span>
-                  {preview.deliveryFee === 0 ? tc("free") : formatMoney(preview.deliveryFee, currency, locale)}
-                </span>
-              </div>
-            )}
-            {preview.taxAmount > 0 && (
+          ))}
+          {!isPickup && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">{tc("deliveryFee")}</span>
+              <span>{deliveryFee === 0 ? tc("free") : formatMoney(deliveryFee, currency, locale)}</span>
+            </div>
+          )}
+          {preview ? (
+            preview.taxAmount > 0 && (
               <div className="flex justify-between text-muted-foreground">
                 <span>
                   {taxDisplayName}
@@ -593,52 +599,61 @@ export function CheckoutForm({
                 </span>
                 <span>{formatMoney(preview.taxAmount, currency, locale)}</span>
               </div>
-            )}
-            {preview.giftCardTotal > 0 && (
-              <div className="flex justify-between text-muted-foreground">
-                <span>{t("giftCardApplied")}</span>
-                <span>-{formatMoney(preview.giftCardTotal, currency, locale)}</span>
-              </div>
-            )}
-            <div className="flex justify-between pt-1 text-base font-bold text-foreground">
-              <span>{tc("total")}</span>
-              <span>{formatMoney(preview.total, currency, locale)}</span>
-            </div>
-            {preview.amountDue !== preview.total && (
-              <div className="flex justify-between text-sm font-semibold text-primary">
-                <span>{t("amountDue")}</span>
-                <span>{formatMoney(preview.amountDue, currency, locale)}</span>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex flex-col gap-1.5 border-t border-border pt-3 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{tc("subtotal")}</span>
-              <span>{formatMoney(cart.estimatedTotal, currency, locale)}</span>
-            </div>
-            <p className="text-xs text-muted-foreground">{t("enterAddressForTotal")}</p>
-          </div>
-        )}
-
-        <div className="flex items-start gap-2 rounded-lg bg-primary/10 p-3">
-          {business.deliveryModuleEnabled ? (
-            <>
-              <Truck className="mt-0.5 size-4 shrink-0 text-primary" />
-              <div>
-                <p className="text-sm font-semibold text-foreground">{t("codTitle")}</p>
-                <p className="text-xs text-muted-foreground">{t("codDescription")}</p>
-              </div>
-            </>
+            )
           ) : (
-            <>
-              <Store className="mt-0.5 size-4 shrink-0 text-primary" />
-              <div>
-                <p className="text-sm font-semibold text-foreground">{t("pickupTitle")}</p>
-                <p className="text-xs text-muted-foreground">{t("pickupDescription")}</p>
-              </div>
-            </>
+            <div className="flex justify-between text-xs text-muted-foreground italic">
+              <span className="flex items-center gap-1">
+                {previewLoading && <Loader2 className="size-3 animate-spin" />}
+                {taxDisplayName}
+              </span>
+              <span>{t("enterAddressForTotal")}</span>
+            </div>
           )}
+          {giftCardTotal > 0 && (
+            <div className="flex justify-between text-muted-foreground">
+              <span>{t("giftCardApplied")}</span>
+              <span>-{formatMoney(giftCardTotal, currency, locale)}</span>
+            </div>
+          )}
+          {storeCreditApplied > 0 && (
+            <div className="flex justify-between text-muted-foreground">
+              <span>{t("storeCreditApplied")}</span>
+              <span>-{formatMoney(storeCreditApplied, currency, locale)}</span>
+            </div>
+          )}
+          <div className="flex justify-between pt-1 text-base font-bold text-foreground">
+            <span>{tc("total")}</span>
+            <span>{formatMoney(runningTotal, currency, locale)}</span>
+          </div>
+          {amountDueFinal !== runningTotal && (
+            <div className="flex justify-between text-sm font-semibold text-primary">
+              <span>{t("amountDue")}</span>
+              <span>{formatMoney(amountDueFinal, currency, locale)}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-2 border-t border-border pt-3">
+          <h2 className="text-sm font-semibold text-foreground">{t("paymentMethod")}</h2>
+          <div className="flex items-start gap-2 rounded-lg bg-primary/10 p-3">
+            {isPickup ? (
+              <>
+                <Store className="mt-0.5 size-4 shrink-0 text-primary" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{t("pickupTitle")}</p>
+                  <p className="text-xs text-muted-foreground">{t("pickupDescription")}</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <Truck className="mt-0.5 size-4 shrink-0 text-primary" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{t("codTitle")}</p>
+                  <p className="text-xs text-muted-foreground">{t("codDescription")}</p>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -165,8 +165,17 @@
     "signInTitle": "Sign in to view your cart",
     "signInDesc": "Antivaly keeps your cart saved to your account, so sign in or create an account to add items.",
     "estimatedTotal": "Estimated Total",
-    "shippingTaxNote": "Shipping and tax are calculated at checkout.",
-    "promotionPlaceholder": "Promotion code"
+    "shippingTaxNote": "Tax is calculated once you enter your address at checkout.",
+    "discountsTitle": "Discounts & Gift Cards",
+    "discountCodePlaceholder": "Discount code or gift card",
+    "codeApplied": "Applied: {code}",
+    "codeNotFound": "That code isn't valid or has expired.",
+    "giftCardApplied": "Gift card",
+    "useStoreCredit": "Use my store credit ({amount})",
+    "storeCreditApplied": "Store credit",
+    "amountDue": "Amount Due",
+    "availableOffers": "Offers you can use",
+    "minOrder": "min. order {amount}"
   },
   "checkout": {
     "title": "Checkout",
@@ -192,6 +201,7 @@
     "pickupDescription": "This order will be ready for pickup — no delivery fee applies.",
     "placeOrder": "Place Order",
     "placingOrder": "Placing Order...",
+    "pleaseWait": "Please wait...",
     "stockError": "\"{product}\" only has {count} left in stock.",
     "outOfStockError": "This item is no longer available in the requested quantity.",
     "guestDetails": "Your Details",
@@ -206,15 +216,14 @@
     "pickupOption": "Store Pickup",
     "shippingMethod": "Shipping Method",
     "estimatedDays": "{min}-{max} days",
-    "useStoreCredit": "Use store credit",
-    "available": "available",
-    "giftCardCodes": "Gift Card Codes (optional)",
-    "giftCardCodesPlaceholder": "Comma-separated codes",
+    "pickupDetailsTitle": "Pickup Details",
+    "pickupAddressNote": "No delivery will happen — we just need this for your receipt and in case we need to reach you.",
     "customerNote": "Order Note (optional)",
     "taxIncluded": "included",
     "giftCardApplied": "Gift card",
+    "storeCreditApplied": "Store credit",
     "amountDue": "Amount Due",
-    "enterAddressForTotal": "Enter your address to see shipping and tax."
+    "enterAddressForTotal": "Add your address to calculate tax."
   },
   "orders": {
     "title": "My Orders",
@@ -237,7 +246,9 @@
       "OutForDelivery": "Out for Delivery",
       "Delivered": "Delivered",
       "Cancelled": "Cancelled",
-      "Refunded": "Refunded"
+      "Refunded": "Refunded",
+      "AwaitingPickup": "Awaiting Pickup",
+      "PickedUp": "Picked Up"
     },
     "paymentStatus": {
       "Pending": "Payment Pending",
@@ -371,6 +382,10 @@
     "startReturn": "Return Items",
     "selectItems": "Select Items to Return",
     "selectAtLeastOne": "Select at least one item to return.",
+    "desiredVariant": "Exchange for",
+    "desiredVariantPlaceholder": "Choose a variant",
+    "selectDesiredVariant": "Choose which variant to exchange each item for.",
+    "noEligibleVariant": "No same-price variant is available to exchange this item for.",
     "reason": "Reason",
     "reasonNote": "Additional details",
     "resolution": "Preferred Resolution",
@@ -399,8 +414,10 @@
       "Rejected": "Rejected",
       "Received": "Received",
       "Refunded": "Refunded",
-      "Cancelled": "Cancelled"
-    }
+      "Cancelled": "Cancelled",
+      "Exchanged": "Exchanged"
+    },
+    "exchangedFor": "Exchanged for {summary}"
   },
   "trackOrder": {
     "title": "Track Your Order",
