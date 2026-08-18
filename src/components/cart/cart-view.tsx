@@ -4,18 +4,19 @@ import { useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { ShoppingCart, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useCartStore } from "@/store/cart-store";
 import { CartLineItem } from "@/components/cart/cart-line-item";
-import { CouponForm } from "@/components/cart/coupon-form";
-import { PromotionForm } from "@/components/cart/promotion-form";
+import { DiscountsCard } from "@/components/cart/discounts-card";
+import { FulfillmentToggle } from "@/components/cart/fulfillment-toggle";
 import { formatMoney } from "@/lib/format";
 
 export function CartView({ currency }: { currency: string }) {
   const t = useTranslations("cart");
   const tc = useTranslations("common");
   const locale = useLocale();
-  const { cart, hasLoaded, isLoading, fetchCart } = useCartStore();
+  const router = useRouter();
+  const { cart, hasLoaded, isLoading, fetchCart, mutatingCount } = useCartStore();
 
   useEffect(() => {
     fetchCart();
@@ -50,6 +51,8 @@ export function CartView({ currency }: { currency: string }) {
         ))}
       </div>
       <div className="flex h-fit flex-col gap-4 rounded-xl border border-border p-5">
+        <FulfillmentToggle />
+
         <div className="flex flex-col gap-1.5 text-sm">
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">{tc("subtotal")}</span>
@@ -61,20 +64,43 @@ export function CartView({ currency }: { currency: string }) {
               <span>-{formatMoney(discount.amount, currency, locale)}</span>
             </div>
           ))}
-          {discounts.length > 0 && (
-            <div className="flex items-center justify-between border-t border-border pt-1.5 text-base font-bold text-foreground">
-              <span>{t("estimatedTotal")}</span>
-              <span>{formatMoney(cart.estimatedTotal, currency, locale)}</span>
+          {cart.fulfillmentMethod !== "Pickup" && cart.fulfillmentMethod !== "Digital" && (
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">{tc("deliveryFee")}</span>
+              <span>{cart.deliveryFee === 0 ? tc("free") : formatMoney(cart.deliveryFee, currency, locale)}</span>
             </div>
           )}
+          {cart.giftCardTotal > 0 && (
+            <div className="flex items-center justify-between text-primary">
+              <span>{t("giftCardApplied")}</span>
+              <span>-{formatMoney(cart.giftCardTotal, currency, locale)}</span>
+            </div>
+          )}
+          {cart.storeCreditApplied > 0 && (
+            <div className="flex items-center justify-between text-primary">
+              <span>{t("storeCreditApplied")}</span>
+              <span>-{formatMoney(cart.storeCreditApplied, currency, locale)}</span>
+            </div>
+          )}
+          <div className="flex items-center justify-between border-t border-border pt-1.5 text-base font-bold text-foreground">
+            <span>{cart.amountDue !== cart.subtotal ? t("amountDue") : t("estimatedTotal")}</span>
+            <span>{formatMoney(cart.amountDue, currency, locale)}</span>
+          </div>
         </div>
 
-        <CouponForm />
-        <PromotionForm />
+        <DiscountsCard currency={currency} />
 
         <p className="text-xs text-muted-foreground">{t("shippingTaxNote")}</p>
 
-        <Button size="lg" render={<Link href="/checkout">{t("proceedToCheckout")}</Link>} />
+        <Button
+          size="lg"
+          type="button"
+          disabled={mutatingCount > 0}
+          onClick={() => router.push("/checkout")}
+        >
+          {mutatingCount > 0 && <Loader2 className="size-4 animate-spin" />}
+          {t("proceedToCheckout")}
+        </Button>
       </div>
     </div>
   );

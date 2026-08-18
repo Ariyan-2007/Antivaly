@@ -10,17 +10,8 @@ export async function POST(request: NextRequest) {
   const business = await getBusiness();
   return proxyCartOrCheckout({
     method: "POST",
-    upstreamPath: `/api/shop/cart/coupon?businessId=${business.id}`,
+    upstreamPath: `/api/shop/cart/gift-cards?businessId=${business.id}`,
     body,
-    guestToken: request.headers.get(CART_TOKEN_HEADER),
-  });
-}
-
-export async function DELETE(request: NextRequest) {
-  const business = await getBusiness();
-  return proxyCartOrCheckout({
-    method: "DELETE",
-    upstreamPath: `/api/shop/cart/coupon?businessId=${business.id}`,
     guestToken: request.headers.get(CART_TOKEN_HEADER),
   });
 }

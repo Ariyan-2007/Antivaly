@@ -291,6 +291,42 @@ export type CartResponse = {
   itemCount: number;
   /** Present only for guest carts — persist this in localStorage. */
   guestToken: string | null;
+  /** Added 2026-08-18 (§9.43) — codes applied to the cart itself, not just at final checkout. */
+  giftCardCodes: string[] | null;
+  /** What those codes actually cover at the current total. */
+  giftCardTotal: number;
+  /** This cart's opt-in state, set via PUT .../cart/store-credit. */
+  useStoreCredit: boolean;
+  storeCreditApplied: number;
+  /** subtotal - discountTotal + delivery/tax (once known) - giftCardTotal - storeCreditApplied —
+   * the number checkout will actually collect. */
+  amountDue: number;
+  /** Added 2026-08-18 (§9.44). This cart's preview fulfillment setting — defaults to "Delivery"
+   * on a fresh cart, set via PUT .../cart/fulfillment-method. Preview-only: send the same value
+   * on CheckoutRequest.fulfillmentMethod, or the customer can see "Pickup" here and still be
+   * charged a delivery fee at checkout. */
+  fulfillmentMethod: FulfillmentMethod;
+  /** Resolvable before an address (unlike tax) — always 0 when fulfillmentMethod is "Pickup" or
+   * "Digital". Don't render a delivery-fee row at all in that case; the zero means "no delivery
+   * is happening", not "delivery happens to be free". */
+  deliveryFee: number;
+  shippingMethodName: string | null;
+  /** Same shape as CheckoutPreviewResponse's — always [] for Pickup/Digital. */
+  shippingOptions: ShippingOption[];
+};
+
+/** Added 2026-08-18 (§9.43). Only `Public`-visibility coupons/promotions are ever listed here —
+ * a `Hidden` code still applies normally through the same POST endpoints, it's just never
+ * suggested. */
+export type AvailableOfferResponse = {
+  source: "Coupon" | "Promotion";
+  code: string;
+  label: string | null;
+  /** Server-formatted: "10% off", "$5 off orders over $50", "Free shipping", "Buy 2, get 1 free". */
+  summary: string | null;
+  minOrderAmount: number | null;
+  /** null = never expires. */
+  expiresAt: string | null;
 };
 
 export type ShippingAddress = {
@@ -367,11 +403,20 @@ export type ReturnStatus =
   | "Rejected"
   | "Received"
   | "Refunded"
-  | "Cancelled";
+  | "Cancelled"
+  // §9.49 — terminal state for an Exchange resolution, distinct from "Refunded" since no money moved.
+  | "Exchanged";
 
 export type CreateReturnRequest = {
   orderId: string;
-  items: { productId: string; variantId: string | null; quantity: number }[];
+  items: {
+    productId: string;
+    variantId: string | null;
+    quantity: number;
+    // §9.49 — required per line when `resolution` is "Exchange", omit otherwise. The variant of
+    // this same product the customer wants instead.
+    desiredVariantId?: string | null;
+  }[];
   reason: ReturnReason;
   reasonNote: string;
   resolution: ReturnResolution;
@@ -390,6 +435,8 @@ export type ReturnResponse = {
     quantity: number;
     unitPrice: number;
     lineRefund: number;
+    desiredVariantId: string | null;
+    desiredVariantSummary: string | null;
   }[];
   reason: ReturnReason;
   reasonNote: string | null;
@@ -400,6 +447,10 @@ export type ReturnResponse = {
   currency: string | null;
   restocked: boolean;
   refundedAt: string | null;
+  // §9.49 — set once staff ship the desired variant. Distinct from refundedAt: an exchange moves
+  // no money, so refundedAt/refundedAmount never move for one.
+  exchanged: boolean;
+  exchangedAt: string | null;
   statusHistory: { status: ReturnStatus; timestamp: string; note: string | null }[];
   createdAt: string;
 };
@@ -411,7 +462,10 @@ export type OrderStatus =
   | "OutForDelivery"
   | "Delivered"
   | "Cancelled"
-  | "Refunded";
+  | "Refunded"
+  // Pickup-only equivalents of OutForDelivery/Delivered — a Pickup order never enters those two.
+  | "AwaitingPickup"
+  | "PickedUp";
 
 export type PaymentStatus = "Pending" | "Paid" | "Failed" | "Refunded";
 

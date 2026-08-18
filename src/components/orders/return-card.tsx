@@ -52,15 +52,22 @@ export function ReturnCard({ ret }: { ret: ReturnResponse }) {
         {ret.items.map((item, i) => (
           <span key={i}>
             {item.productName || tc("unnamedItem")} × {item.quantity}
+            {item.desiredVariantSummary && (
+              <span className="text-primary"> — {t("exchangedFor", { summary: item.desiredVariantSummary })}</span>
+            )}
           </span>
         ))}
       </div>
 
       <div className="flex items-center justify-between text-sm">
         <span className="text-muted-foreground">{formatDate(ret.createdAt, locale)}</span>
-        <span className="font-semibold text-foreground">
-          {formatMoney(ret.approvedRefundAmount ?? ret.requestedRefundAmount, currency, locale)}
-        </span>
+        {/* An exchange moves no money (§9.49) — showing a dollar figure here would read as a
+            refund that never happens. */}
+        {ret.resolution !== "Exchange" && (
+          <span className="font-semibold text-foreground">
+            {formatMoney(ret.approvedRefundAmount ?? ret.requestedRefundAmount, currency, locale)}
+          </span>
+        )}
       </div>
 
       {CANCELLABLE.has(ret.status) && (
